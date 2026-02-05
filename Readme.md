@@ -71,7 +71,7 @@ ATS.API/
 
 ### Prerequisites
 - .NET 8.0 SDK
-- SQL Server
+- POSTGresql
 - SMTP server credentials (for email notifications)
 - API keys for external integrations
 
