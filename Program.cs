@@ -87,4 +87,14 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 
+try
+{
+    DbInitializer.DbInit(app);
+}
+catch (Exception e)
+{
+    
+    Console.WriteLine(e);
+}
+
 app.Run();
