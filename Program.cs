@@ -27,8 +27,12 @@ builder.Services.AddSwaggerGen(c =>
 );
 
 // Database
+/*builder.Services.AddDbContext<AtsDbContext>(options =>
+options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));*/
+
 builder.Services.AddDbContext<AtsDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+ options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), new MySqlServerVersion(new Version(8,0,35)))
+);
 
 // Service registrations
 builder.Services.AddScoped<IJobPostingService, JobPostingService>();
