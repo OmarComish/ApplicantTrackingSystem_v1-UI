@@ -19,7 +19,7 @@ public class DbInitializer
             Console.WriteLine("Seeding Users data initiated...");
             var _users = new List<User>
             {
-                new() {FirstName ="Mariam", LastName="Kasupe", Email ="mariekasupe@gmail.com", 
+                new() {Id = 1, FirstName ="Mariam", LastName="Kasupe", Email ="mariekasupe@gmail.com", 
                 IsActive = true, CreatedAt = DateTime.UtcNow, CreatedBy ="system", Role = UserRole.HRAdmin}
             };
             context.AddRange(_users);
