@@ -6,7 +6,7 @@ public class ApplicationStatusHistory: BaseEntity
     public ApplicationStatus FromStatus { get; set; }
     public ApplicationStatus ToStatus { get; set; }
     
-    public DateTime ChangedAt { get; set; } = DateTime.UtcNow;
+    public DateTime ChangedAt { get; set; }
     public int ChangedByUserId { get; set; }
     
     public string Comments { get; set; }

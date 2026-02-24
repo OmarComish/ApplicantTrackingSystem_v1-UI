@@ -7,7 +7,7 @@ namespace ATS.API.Models;
         public bool IsShortlisted { get; set; }
         public int? ShortlistRank { get; set; }
         public string CoverLetter { get; set; }
-        public DateTime AppliedAt { get; set; } = DateTime.UtcNow;
+        public DateTime AppliedAt { get; set; }
         public DateTime? StatusUpdatedAt { get; set; }
         public string Notes { get; set; }
         

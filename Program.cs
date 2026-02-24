@@ -26,7 +26,7 @@ builder.Services.AddSwaggerGen(c =>
     }
 );
 
-// Database
+//Database
 /*builder.Services.AddDbContext<AtsDbContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));*/
 
@@ -97,7 +97,6 @@ try
 }
 catch (Exception e)
 {
-    
     Console.WriteLine(e);
 }
 
