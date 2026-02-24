@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ATS.API.Models
 {
-    public class ApplicantScore
+    public class ApplicantScore :BaseEntity
     {
         public string  ApplicantId { get; set; }
         public double Score { get; set; }

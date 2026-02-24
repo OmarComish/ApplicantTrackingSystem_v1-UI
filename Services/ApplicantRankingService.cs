@@ -5,19 +5,23 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using ATS.API.Data;
 using ATS.API.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.ML;
+using ATS.API.Interfaces;
 
 namespace ATS.API.Services
 {
-    public class ApplicantRankingService
+    public class ApplicantRankingService: IRankingService
     {
         private readonly MLContext _mlContext;
         private ITransformer _model;
         private readonly string _modelPath;
-        public ApplicantRankingService(string modelDirectory=null)
+        private readonly AtsDbContext _context;
+        public ApplicantRankingService(AtsDbContext context,string modelDirectory=null)
         {
+            _context = context;
             _mlContext = new MLContext(seed: 0);
 
             //directory for local data storage
@@ -78,7 +82,7 @@ namespace ATS.API.Services
         ///<summary>
         /// Rank applicants using ML.NET model or rule-based scoring
         /// </summary>
-        public List<ApplicantScore> RankApplicants(string jobDescription, List<ResumeData> applicants)
+        public async Task<List<ApplicantScore>> RankApplicants(string jobDescription, List<ResumeData> applicants)
         {
             //Step 1: Extract features
             var features = applicants.Select(a =>ExtractFeatures(jobDescription,a)).ToList();
@@ -96,9 +100,31 @@ namespace ATS.API.Services
                 //Fallback to rule-based scoring
                 scores = ScoreWithRules(features);
             }
+            //persist the scores to the database here...
+           await LogApplicantScore(scores);
+
             return scores.OrderByDescending(s =>s.Score).ToList();
         }
+        private async Task LogApplicantScore(List<ApplicantScore> applicantScores)
+        {
+          
+            var currentapplicantlist = new List<ApplicantScore>();
+            foreach(var applicantscore in applicantScores)
+            {
+                currentapplicantlist.Add( new ApplicantScore 
+                {
+                    ApplicantId = applicantscore.ApplicantId,
+                    Score =applicantscore.Score,
+                    MatchedSkills = applicantscore.MatchedSkills,
+                    MissingSkills = applicantscore.MissingSkills,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "system"
+                });
+            }
+            await _context.ApplicantScores.AddRangeAsync(currentapplicantlist);
+            await _context.SaveChangesAsync();
 
+        }
         private List<ApplicantScore> ScoreWithRules(List<ApplicantFeatures> features)
         {
             var scores = new List<ApplicantScore>();
@@ -292,7 +318,6 @@ namespace ATS.API.Services
             var lines = jobDesc.Split('\n');
             return lines.FirstOrDefault()?.Trim()??"";
         }
-        
         private List<string> ExtractTitles(string resumeText)
         {
            //Extract potential job titles from resume

@@ -6,7 +6,7 @@ using Microsoft.ML.Data;
 
 namespace ATS.API.Models
 {
-    public class ApplicantFeatures
+    public class ApplicantFeatures :BaseEntity
     {
         public string ApplicantId {get; set;}
         [LoadColumn(0)]

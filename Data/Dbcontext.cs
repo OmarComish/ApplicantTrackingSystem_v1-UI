@@ -15,6 +15,10 @@ namespace ATS.API.Data
         public DbSet<ApplicationStatusHistory> ApplicationStatusHistories { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<NotificationSettings> NotificationSettings { get; set; }
+        public DbSet<ApplicantFeatures> ApplicantFeatures {get; set;}
+        public DbSet<ApplicantPrediction> ApplicantPredictions { get; set; }
+        public DbSet<ApplicantScore> ApplicantScores { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

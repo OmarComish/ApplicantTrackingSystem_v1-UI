@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using ATS.API.Models;
 
+
 namespace ATS.API.DTOs
 {
     // Job Posting DTOs
@@ -27,7 +28,7 @@ namespace ATS.API.DTOs
         public decimal? SalaryMax { get; set; }
         
         [Required]
-        public int CreatedByUserId { get; set; }
+        public string CreatedByUserId { get; set; }
     }
 
     public class UpdateJobPostingDto
@@ -83,6 +84,7 @@ namespace ATS.API.DTOs
         public string Skills { get; set; }
         
         public string CoverLetter { get; set; }
+        public string Notes {get; set;}
     }
 
     public class ApplicationDetailsDto
@@ -220,4 +222,23 @@ namespace ATS.API.DTOs
         [Required]
         public string IntegrationId { get; set; }
     }
+    
+    //Applicant DTOs
+    public class CreateApplicantDto {
+        [Required]
+        public string FirstName {get; set;} 
+
+        [Required]
+        public string LastName {get; set;} 
+
+        [Required]
+        public string Email {get; set;}
+
+        [Phone]
+        public string PhoneNumber {get; set;}
+        public string ResumeUrl {get; set;}
+        public EducationLevel EducationLevel {get; set;}
+
+    }
+
 }

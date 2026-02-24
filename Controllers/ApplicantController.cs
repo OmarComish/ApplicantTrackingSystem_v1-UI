@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ATS.API.Models;
 using ATS.API.Services;
 using ATS.API.DTOs;
+using ATS.API.Interfaces;
 
 namespace ATS.API.Controllers
 {
@@ -13,17 +14,19 @@ namespace ATS.API.Controllers
         private readonly IShortlistingService _shortlistingService;
         private readonly INotificationService _notificationService;
         private readonly IMergeClient _mergeClient;
+        private readonly IRankingService _rankingservice;
 
         public ApplicantsController(
             IApplicantService applicantService,
             IShortlistingService shortlistingService,
             INotificationService notificationService,
-            IMergeClient mergeClient)
+            IMergeClient mergeClient, IRankingService rankingservice)
         {
             _applicantService = applicantService;
             _shortlistingService = shortlistingService;
             _notificationService = notificationService;
             _mergeClient = mergeClient;
+            _rankingservice = rankingservice;
         }
 
         // US-2.1: View applicants for a specific job posting
@@ -104,10 +107,10 @@ namespace ATS.API.Controllers
             var application = await _applicantService.CreateApplicationAsync(dto);
 
             // Sync with external ATS via Merge.dev
-            await _mergeClient.CreateApplicationAsync(application);
+            //await _mergeClient.CreateApplicationAsync(application);
 
             // Send confirmation email
-            await _notificationService.SendApplicationConfirmationAsync(application);
+            //await _notificationService.SendApplicationConfirmationAsync(application);
 
             return CreatedAtAction(nameof(GetApplication), new { id = application.Id }, application);
         }
@@ -135,6 +138,50 @@ namespace ATS.API.Controllers
             }
 
             return Ok(new { imported = candidates.Count(), message = "Candidates imported successfully" });
+        }
+
+        //Applicant Ranking
+        [HttpGet("RankApplicants")]
+        public async Task<ActionResult> RankApplicants()
+        {
+            //var rankingServicce = new ApplicantRankingService();
+            //Optional: Train model with historical data
+            //var historicaldata =LoadHistoricalData();
+            //_rankingservice.TrainModel(historicaldata);
+
+            //Rank new Applicants
+            var jobdescription = @"
+                Senior Software Engineer
+
+                We're looking for a Senior Software Engineer with:
+                - 5+ years experience with C# and .NET
+                - Experieince with Azure and cloud services
+                - Knowledge of microservices architecture
+                - Bachelor's degree in Computer Science
+                - Strong SQL and REST API skills
+            ";
+            var applicants = new List<ResumeData>
+            {
+                new ResumeData {Id = "001",
+                ApplicantName = "Aggie Gwata", 
+                Text="Software Engineer with 7 years experience. Expert in C#, .NET, Azure, SQL ..."},
+                new ResumeData {Id = "002",
+                ApplicantName = "Comish Omar", 
+                Text="Full Stack Developer, 3 years experience with JavaScript, React, Node.js..."}
+                
+            };
+            var rankedApplicants =await _rankingservice.RankApplicants(jobdescription, applicants);
+            foreach(var applicant in rankedApplicants)
+            {
+                Console.WriteLine($"Applicant: {applicant.ApplicantId}");
+                Console.WriteLine($"Score: {applicant.Score:F2}");
+                Console.WriteLine($"Matched Skills: {string.Join(", ", applicant.MatchedSkills)}");
+                Console.WriteLine($"Missing Skills: {string.Join(", ", applicant.MissingSkills)}");
+                Console.WriteLine($"Reasoning: {applicant.Reasoning}");
+                Console.WriteLine(new string('-', 50));
+            }
+
+            return Ok(rankedApplicants);
         }
     }
 }

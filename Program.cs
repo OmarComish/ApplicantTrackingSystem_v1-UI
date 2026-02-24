@@ -3,6 +3,7 @@ using ATS.API.Data;
 using ATS.API.Services;
 using ATS.API.Middleware;
 using Microsoft.OpenApi.Models;
+using ATS.API.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,7 @@ builder.Services.AddScoped<IApplicantService, ApplicantService>();
 builder.Services.AddScoped<IShortlistingService, ShortlistingService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IRankingService, ApplicantRankingService>();
 
 // External API clients
 builder.Services.AddHttpClient<IOpenCatsClient, OpenCatsClient>(client =>

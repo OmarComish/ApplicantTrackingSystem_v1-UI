@@ -38,7 +38,7 @@ namespace ATS.API.Services
                 SalaryMin = dto.SalaryMin,
                 SalaryMax = dto.SalaryMax,
                 Status = JobStatus.Open,
-                CreatedByUserId = dto.CreatedByUserId,
+                CreatedBy = dto.CreatedByUserId,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -111,9 +111,7 @@ namespace ATS.API.Services
                 .FirstOrDefaultAsync(j => j.Id == id);
         }
 
-        public async Task<IEnumerable<JobPosting>> GetAllJobPostingsAsync(
-            JobStatus? status = null, 
-            string department = null)
+        public async Task<IEnumerable<JobPosting>> GetAllJobPostingsAsync(JobStatus? status = null, string department = null)
         {
             var query = _context.JobPostings.AsQueryable();
 
@@ -136,6 +134,7 @@ namespace ATS.API.Services
         Task<IEnumerable<ApplicationDetailsDto>> FilterByEducationAsync(int jobPostingId, EducationLevel educationLevel);
         Task<Application> UpdateApplicationStatusAsync(int applicationId, ApplicationStatus status, int userId, string comments);
         Task ImportCandidateAsync(ExternalCandidateDto candidate);
+        Task <ResponseDto> CreateApplicant(CreateApplicantDto createApplicantDto);
     }
 
     // Applicant Service Implementation
@@ -165,7 +164,9 @@ namespace ATS.API.Services
                     ResumeUrl = dto.ResumeUrl,
                     EducationLevel = dto.EducationLevel,
                     YearsOfExperience = dto.YearsOfExperience,
-                    Skills = dto.Skills
+                    Skills = dto.Skills,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "Admin"
                 };
 
                 _context.Applicants.Add(applicant);
@@ -178,7 +179,9 @@ namespace ATS.API.Services
                 ApplicantId = applicant.Id,
                 CoverLetter = dto.CoverLetter,
                 Status = ApplicationStatus.New,
-                AppliedAt = DateTime.UtcNow
+                AppliedAt = DateTime.UtcNow,
+                Notes = dto.Notes,
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Applications.Add(application);
@@ -240,7 +243,12 @@ namespace ATS.API.Services
                 })
                 .ToListAsync();
         }
-
+        
+        public async Task <ResponseDto> CreateApplicant(CreateApplicantDto createApplicantDto)
+        {
+            var response = new ResponseDto {};
+            return response;
+        }
         public async Task<Application> UpdateApplicationStatusAsync(
             int applicationId, 
             ApplicationStatus status, 

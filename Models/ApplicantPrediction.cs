@@ -6,7 +6,7 @@ using Microsoft.ML.Data;
 
 namespace ATS.API.Models
 {
-    public class ApplicantPrediction
+    public class ApplicantPrediction :BaseEntity
     {
         [ColumnName("Score")]
         public float PredictedScore { get; set; }

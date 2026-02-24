@@ -22,7 +22,7 @@ namespace ATS.API.Controllers
 
         // US-1.1: Create a job posting
         [HttpPost]
-        public async Task<ActionResult<JobPosting>> CreateJobPosting([FromBody] CreateJobPostingDto dto)
+        public async Task<ActionResult<ResponseDto>> CreateJobPosting([FromBody] CreateJobPostingDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
