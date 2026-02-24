@@ -4,6 +4,7 @@ using ATS.API.Services;
 using ATS.API.Middleware;
 using Microsoft.OpenApi.Models;
 using ATS.API.Interfaces;
+using Pomelo.EntityFrameworkCore.MySql.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,8 @@ builder.Services.AddSwaggerGen(c =>
 
 // Database
 builder.Services.AddDbContext<AtsDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),new MySqlServerVersion(new Version(8,0,35)))
+/*options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))*/);
 
 // Service registrations
 builder.Services.AddScoped<IJobPostingService, JobPostingService>();
