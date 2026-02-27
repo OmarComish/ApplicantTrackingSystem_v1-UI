@@ -19,6 +19,6 @@ namespace ATS.API.Models
         public string Logo {get; set;}
 
         //Navigation properties
-        public virtual ICollection<Industry> Industry { get; set; }
+        public virtual Industry Industry { get; set; }
     }
 }

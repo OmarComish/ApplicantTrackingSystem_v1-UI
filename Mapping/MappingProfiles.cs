@@ -8,6 +8,10 @@ public class MappingProfiles: Profile
     public MappingProfiles()
     {
          CreateMap<CreateApplicantDto, Applicant>();
+         CreateMap<CreateCompanyDto, Company>();
+         CreateMap<Company, CompanyDto>()
+         .ForMember(dest => dest.IndustryName, opt => opt.MapFrom(src => src.Industry.Name));
+
     }
     
 }

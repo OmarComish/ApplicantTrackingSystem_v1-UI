@@ -4,6 +4,7 @@ using ATS.API.Services;
 using ATS.API.Middleware;
 using Microsoft.OpenApi.Models;
 using ATS.API.Interfaces;
+using ATS.API.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,12 +36,14 @@ builder.Services.AddDbContext<AtsDbContext>(options =>
 );
 
 // Service registrations
+builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 builder.Services.AddScoped<IJobPostingService, JobPostingService>();
 builder.Services.AddScoped<IApplicantService, ApplicantService>();
 builder.Services.AddScoped<IShortlistingService, ShortlistingService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRankingService, ApplicantRankingService>();
+builder.Services.AddScoped<ICompanyService, CompanyServiceRepository>();
 
 // External API clients
 builder.Services.AddHttpClient<IOpenCatsClient, OpenCatsClient>(client =>

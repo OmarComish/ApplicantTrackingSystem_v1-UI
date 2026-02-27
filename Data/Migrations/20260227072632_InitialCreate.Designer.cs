@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ATS.API.Data.Migrations
 {
     [DbContext(typeof(AtsDbContext))]
-    [Migration("20260226184732_InitialCreate")]
+    [Migration("20260227072632_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -364,6 +364,8 @@ namespace ATS.API.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IndustryId");
+
                     b.ToTable("Companies");
                 });
 
@@ -371,9 +373,6 @@ namespace ATS.API.Data.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -395,8 +394,6 @@ namespace ATS.API.Data.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
 
                     b.ToTable("Industries");
                 });
@@ -599,11 +596,15 @@ namespace ATS.API.Data.Migrations
                     b.Navigation("Application");
                 });
 
-            modelBuilder.Entity("ATS.API.Models.Industry", b =>
+            modelBuilder.Entity("ATS.API.Models.Company", b =>
                 {
-                    b.HasOne("ATS.API.Models.Company", null)
-                        .WithMany("Industry")
-                        .HasForeignKey("CompanyId");
+                    b.HasOne("ATS.API.Models.Industry", "Industry")
+                        .WithMany()
+                        .HasForeignKey("IndustryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Industry");
                 });
 
             modelBuilder.Entity("ATS.API.Models.NotificationSettings", b =>
@@ -625,11 +626,6 @@ namespace ATS.API.Data.Migrations
             modelBuilder.Entity("ATS.API.Models.Application", b =>
                 {
                     b.Navigation("StatusHistory");
-                });
-
-            modelBuilder.Entity("ATS.API.Models.Company", b =>
-                {
-                    b.Navigation("Industry");
                 });
 
             modelBuilder.Entity("ATS.API.Models.JobPosting", b =>

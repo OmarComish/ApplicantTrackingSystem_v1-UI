@@ -252,4 +252,29 @@ namespace ATS.API.DTOs
 
     }
 
+    //Companies Dtos
+    public class CreateCompanyDto
+    {
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        public int IndustryId { get; set; }
+        [Required]
+        public string Location { get; set; }
+        [Required]
+        [MaxLength(250)]
+        public string  Description { get; set; }
+
+    }
+    public class CompanyDto
+    {
+        
+        public string Name {get; set;}
+        public string IndustryName {get; set;}
+        public string Location {get; set;}
+        public string Description {get; set;}
+        public string Logo {get; set;}
+
+    }
+
 }
