@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ATS.API.Data.Migrations
 {
     [DbContext(typeof(AtsDbContext))]
-    [Migration("20260224211910_InitialCreate")]
+    [Migration("20260226184732_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -323,6 +323,84 @@ namespace ATS.API.Data.Migrations
                     b.ToTable("ApplicationStatusHistories");
                 });
 
+            modelBuilder.Entity("ATS.API.Models.Company", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("IndustryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Logo")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Companies");
+                });
+
+            modelBuilder.Entity("ATS.API.Models.Industry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Industries");
+                });
+
             modelBuilder.Entity("ATS.API.Models.JobPosting", b =>
                 {
                     b.Property<int>("Id")
@@ -331,6 +409,9 @@ namespace ATS.API.Data.Migrations
 
                     b.Property<DateTime?>("ClosedAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -346,7 +427,11 @@ namespace ATS.API.Data.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<bool>("Featured")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Location")
                         .IsRequired()
@@ -355,7 +440,13 @@ namespace ATS.API.Data.Migrations
 
                     b.Property<string>("Requirements")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Responsibilities")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<decimal?>("SalaryMax")
                         .HasColumnType("decimal(65,30)");
@@ -371,6 +462,9 @@ namespace ATS.API.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -505,6 +599,13 @@ namespace ATS.API.Data.Migrations
                     b.Navigation("Application");
                 });
 
+            modelBuilder.Entity("ATS.API.Models.Industry", b =>
+                {
+                    b.HasOne("ATS.API.Models.Company", null)
+                        .WithMany("Industry")
+                        .HasForeignKey("CompanyId");
+                });
+
             modelBuilder.Entity("ATS.API.Models.NotificationSettings", b =>
                 {
                     b.HasOne("ATS.API.Models.User", "User")
@@ -524,6 +625,11 @@ namespace ATS.API.Data.Migrations
             modelBuilder.Entity("ATS.API.Models.Application", b =>
                 {
                     b.Navigation("StatusHistory");
+                });
+
+            modelBuilder.Entity("ATS.API.Models.Company", b =>
+                {
+                    b.Navigation("Industry");
                 });
 
             modelBuilder.Entity("ATS.API.Models.JobPosting", b =>

@@ -24,13 +24,14 @@ namespace ATS.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ResponseDto>> CreateJobPosting([FromBody] CreateJobPostingDto dto)
         {
+            Console.WriteLine(dto);
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var jobPosting = await _jobPostingService.CreateJobPostingAsync(dto);
             
             // Sync with OpenCATS
-            await _openCatsClient.CreateJobOrderAsync(jobPosting);
+            //await _openCatsClient.CreateJobOrderAsync(jobPosting);
             
             return CreatedAtAction(nameof(GetJobPosting), new { id = jobPosting.Id }, jobPosting);
         }

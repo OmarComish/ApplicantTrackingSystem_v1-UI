@@ -7,8 +7,12 @@ public class JobPosting: BaseEntity
         [Required]
         [MaxLength(200)]
         public string Title { get; set; }
+
+        [Required]
+        public int CompanyId { get; set; }
         
         [Required]
+        [MaxLength(500)]
         public string Description { get; set; }
         
         [Required]
@@ -19,7 +23,11 @@ public class JobPosting: BaseEntity
         public string Location { get; set; }
         
         [Required]
+        [MaxLength(500)]
         public string Requirements { get; set; }
+        [Required]
+        [MaxLength(500)]
+        public string Responsibilities {get; set;}
         
         public decimal? SalaryMin { get; set; }
         public decimal? SalaryMax { get; set; }
@@ -27,6 +35,10 @@ public class JobPosting: BaseEntity
         
         [Required]
         public JobStatus Status { get; set; } = JobStatus.Open;
+
+        [Required]
+        public JobType Type { get; set; } = JobType.Contract;
+        public bool Featured { get; set; }
 
         // Navigation properties
         public virtual ICollection<Application> Applications { get; set; }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using ATS.API.Models;
+using Newtonsoft.Json;
 
 
 namespace ATS.API.DTOs
@@ -8,27 +9,37 @@ namespace ATS.API.DTOs
     public class CreateJobPostingDto
     {
         [Required]
-        [MaxLength(200)]
+        
         public string Title { get; set; }
         
         [Required]
+        [MaxLength(300)]
         public string Description { get; set; }
         
         [Required]
         [MaxLength(100)]
         public string Department { get; set; }
         
-        [MaxLength(100)]
+        [Required]
         public string Location { get; set; }
         
         [Required]
+        [MaxLength(350)]
         public string Requirements { get; set; }
         
         public decimal? SalaryMin { get; set; }
         public decimal? SalaryMax { get; set; }
+
+        [Required]
+        [MaxLength(250)]
+        public string Responsibilities {get; set;}
+
+        [Required]
+        public JobType Type { get; set; } = JobType.Contract;
         
         [Required]
         public string CreatedByUserId { get; set; }
+        public bool Featured { get; set; } = true;
     }
 
     public class UpdateJobPostingDto

@@ -36,10 +36,14 @@ namespace ATS.API.Services
                 Location = dto.Location,
                 Requirements = dto.Requirements,
                 SalaryMin = dto.SalaryMin,
+                Responsibilities = dto.Responsibilities,
+                CompanyId = 2,
                 SalaryMax = dto.SalaryMax,
                 Status = JobStatus.Open,
                 CreatedBy = dto.CreatedByUserId,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Featured = dto.Featured,
+                Type = dto.Type==0? JobType.Contract: dto.Type,
             };
 
             _context.JobPostings.Add(jobPosting);
@@ -47,7 +51,6 @@ namespace ATS.API.Services
 
             return jobPosting;
         }
-
         public async Task<JobPosting> UpdateJobPostingAsync(int id, UpdateJobPostingDto dto)
         {
             var jobPosting = await _context.JobPostings.FindAsync(id);
@@ -75,7 +78,6 @@ namespace ATS.API.Services
             await _context.SaveChangesAsync();
             return jobPosting;
         }
-
         public async Task<bool> DeleteJobPostingAsync(int id)
         {
             var jobPosting = await _context.JobPostings.FindAsync(id);
@@ -87,7 +89,6 @@ namespace ATS.API.Services
             await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<JobPosting> CloseJobPostingAsync(int id)
         {
             var jobPosting = await _context.JobPostings.FindAsync(id);
@@ -102,7 +103,6 @@ namespace ATS.API.Services
             await _context.SaveChangesAsync();
             return jobPosting;
         }
-
         public async Task<JobPosting> GetJobPostingByIdAsync(int id)
         {
             return await _context.JobPostings

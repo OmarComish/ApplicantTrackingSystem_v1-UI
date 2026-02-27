@@ -18,6 +18,8 @@ namespace ATS.API.Data
         public DbSet<ApplicantFeatures> ApplicantFeatures {get; set;}
         public DbSet<ApplicantPrediction> ApplicantPredictions { get; set; }
         public DbSet<ApplicantScore> ApplicantScores { get; set; }
+        public DbSet<Industry> Industries { get; set; }
+        public DbSet<Company> Companies { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
