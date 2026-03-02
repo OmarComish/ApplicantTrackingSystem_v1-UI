@@ -44,6 +44,7 @@ builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRankingService, ApplicantRankingService>();
 builder.Services.AddScoped<ICompanyService, CompanyServiceRepository>();
+builder.Services.AddScoped<IJobNotificationService, JobNotificationServiceRepository>();
 
 // External API clients
 builder.Services.AddHttpClient<IOpenCatsClient, OpenCatsClient>(client =>

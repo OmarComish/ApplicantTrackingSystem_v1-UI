@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ATS.API.Models;
 using ATS.API.Services;
 using ATS.API.DTOs;
+using ATS.API.Interfaces;
 
 namespace ATS.API.Controllers
 {
@@ -11,13 +12,15 @@ namespace ATS.API.Controllers
     {
         private readonly IJobPostingService _jobPostingService;
         private readonly IOpenCatsClient _openCatsClient;
+        private readonly IJobNotificationService _notifier;
 
         public JobPostingsController(
             IJobPostingService jobPostingService,
-            IOpenCatsClient openCatsClient)
+            IOpenCatsClient openCatsClient, IJobNotificationService notifier)
         {
             _jobPostingService = jobPostingService;
             _openCatsClient = openCatsClient;
+            _notifier = notifier;
         }
 
         // US-1.1: Create a job posting
@@ -30,8 +33,8 @@ namespace ATS.API.Controllers
 
             var jobPosting = await _jobPostingService.CreateJobPostingAsync(dto);
             
-            // Sync with OpenCATS
-            //await _openCatsClient.CreateJobOrderAsync(jobPosting);
+            // Broadcast to all connected React clients instantly
+            await _notifier.BroadcastJobAsync(jobPosting);
             
             return CreatedAtAction(nameof(GetJobPosting), new { id = jobPosting.Id }, jobPosting);
         }
@@ -110,6 +113,34 @@ namespace ATS.API.Controllers
             }
 
             return Ok(new { message = "Job postings synced successfully" });
+        }
+         // SSE subscription endpoint — React connects here
+         [HttpGet("Stream")]
+        public async Task Stream(CancellationToken cancellationToken)
+        {
+            var clientId = Guid.NewGuid().ToString();
+
+            Response.Headers.Append("Content-Type", "text/event-stream");
+            Response.Headers.Append("Cache-Control", "no-cache");
+            Response.Headers.Append("X-Accel-Buffering", "no"); // important for Nginx
+
+            _notifier.AddClient(clientId, Response);
+            try
+            {
+                  // Keep connection alive with periodic heartbeats
+                while(!cancellationToken.IsCancellationRequested)
+                {
+                     await Response.WriteAsync(": heartbeat\n\n", cancellationToken);
+                     await Response.Body.FlushAsync(cancellationToken);
+                     await Task.Delay(TimeSpan.FromSeconds(15), cancellationToken);
+                }
+                
+            }
+            catch(OperationCanceledException){}
+            finally
+            {
+                _notifier.RemoveClient(clientId);
+            }
         }
     }
 }
