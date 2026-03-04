@@ -3,6 +3,7 @@ using ATS.API.Models;
 using ATS.API.Services;
 using ATS.API.DTOs;
 using ATS.API.Interfaces;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ATS.API.Controllers
 {
@@ -126,6 +127,17 @@ namespace ATS.API.Controllers
             return Ok(application);
         }
 
+        [HttpGet("{applicantId}")]
+        public async Task<ActionResult<Application>> GetJobApplication(int applicantId)
+        {
+            var applications = await _applicantService.GetJobApplicationByIdAsync(applicantId);
+             
+             if (applications == null)
+                return NotFound($"Application with ID {applicantId} not found.");
+
+            return Ok(applications);
+        }
+
         // Bulk import candidates from external ATS
         [HttpPost("import")]
         public async Task<ActionResult> ImportCandidates([FromBody] ImportCandidatesDto dto)
@@ -182,6 +194,58 @@ namespace ATS.API.Controllers
             }
 
             return Ok(rankedApplicants);
+        }
+        // US: Upload resume/CV file
+        [HttpPost("upload-resume")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ResumeUploadResultDto>> UploadResume(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file was provided.");
+
+              // Validate file type — only PDF, DOC, DOCX allowed
+            var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+               return BadRequest($"Invalid file type '{extension}'. Only PDF, DOC, and DOCX are accepted.");
+
+             // Validate file size — max 5 MB
+            const long maxFileSizeBytes = 5 * 1024 * 1024;
+            if (file.Length > maxFileSizeBytes)
+                return BadRequest("File size exceeds the 5 MB limit.");
+
+            // Generate a unique file name to prevent collisions
+            var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+
+             // Define upload path (adjust folder as needed, or swap for cloud storage)
+            var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "resumes");
+            Directory.CreateDirectory(uploadFolder); // ensure folder exists
+
+             var filePath = Path.Combine(uploadFolder, uniqueFileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Build a URL the client can store and reference later
+            var resumeUrl = $"/resumes/{uniqueFileName}";
+
+            return Ok(new ResumeUploadResultDto
+            {
+                ResumeUrl = resumeUrl,
+                FileName = file.FileName,
+                FileSizeBytes = file.Length
+            });
+        }
+        [HttpPost("CreateApplicant")]
+        public async Task<ActionResult<ApplicantDto>> Create(CreateApplicantDto dto)
+        {
+            if(dto == null) return BadRequest("Null or invald data. Failed to save to database") ;
+
+            var result = await _applicantService.CreateApplicant(dto);
+            return CreatedAtAction(nameof(GetApplication), new { applicationId= result.Id }, result);
         }
     }
 }

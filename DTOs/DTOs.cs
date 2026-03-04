@@ -235,22 +235,6 @@ namespace ATS.API.DTOs
     }
     
     //Applicant DTOs
-    public class CreateApplicantDto {
-        [Required]
-        public string FirstName {get; set;} 
-
-        [Required]
-        public string LastName {get; set;} 
-
-        [Required]
-        public string Email {get; set;}
-
-        [Phone]
-        public string PhoneNumber {get; set;}
-        public string ResumeUrl {get; set;}
-        public EducationLevel EducationLevel {get; set;}
-
-    }
 
     //Companies Dtos
     public class CreateCompanyDto

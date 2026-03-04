@@ -38,7 +38,7 @@ builder.Services.AddDbContext<AtsDbContext>(options =>
 // Service registrations
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 builder.Services.AddScoped<IJobPostingService, JobPostingService>();
-builder.Services.AddScoped<IApplicantService, ApplicantService>();
+builder.Services.AddScoped<IApplicantService, ApplicantServiceRepository>();
 builder.Services.AddScoped<IShortlistingService, ShortlistingService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
@@ -94,6 +94,7 @@ app.UseCors("AllowAll");
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
+app.UseStaticFiles();
 
 try
 {

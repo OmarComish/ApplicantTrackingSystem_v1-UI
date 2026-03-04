@@ -1,0 +1,214 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using ATS.API.Data;
+using ATS.API.DTOs;
+using ATS.API.Interfaces;
+using ATS.API.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace ATS.API.Services
+{
+    public class ApplicantServiceRepository: IApplicantService
+    {
+         private readonly AtsDbContext _context;
+        public ApplicantServiceRepository(AtsDbContext context)
+        {
+            _context = context;
+        }
+        public async Task<Application> CreateApplicationAsync(CreateApplicationDto dto)
+        {
+            // Check if applicant exists
+            var applicant = await _context.Applicants
+                .FirstOrDefaultAsync(a => a.Email == dto.Email);
+
+            if (applicant == null)
+            {
+                applicant = new Applicant
+                {
+                    FirstName = dto.FirstName,
+                    LastName = dto.LastName,
+                    Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    ResumeUrl = dto.ResumeUrl,
+                    EducationLevel = dto.EducationLevel,
+                    YearsOfExperience = dto.YearsOfExperience,
+                    Skills = dto.Skills,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "Admin"
+                };
+
+                _context.Applicants.Add(applicant);
+                await _context.SaveChangesAsync();
+            }
+
+            var application = new Application
+            {
+                JobPostingId = dto.JobPostingId,
+                ApplicantId = applicant.Id,
+                CoverLetter = dto.CoverLetter,
+                Status = ApplicationStatus.New,
+                AppliedAt = DateTime.UtcNow,
+                Notes = dto.Notes,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Applications.Add(application);
+            await _context.SaveChangesAsync();
+
+            return await GetApplicationByIdAsync(application.Id);
+        }
+        public async Task<Application> GetApplicationByIdAsync(int id)
+        {
+            return await _context.Applications
+                .Include(a => a.Applicant)
+                .Include(a => a.JobPosting)
+                .Include(a => a.StatusHistory)
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<Application> GetJobApplicationByIdAsync(int applicantId)
+        {
+             return await _context.Applications
+                .Include(a => a.Applicant)
+                .Include(a => a.JobPosting)
+                .Include(a => a.StatusHistory)
+                .FirstOrDefaultAsync(a => a.ApplicantId == applicantId);
+        }
+        public async Task<IEnumerable<ApplicationDetailsDto>> GetApplicantsByJobPostingAsync(int jobPostingId)
+        {
+            return await _context.Applications
+                .Where(a => a.JobPostingId == jobPostingId)
+                .Include(a => a.Applicant)
+                .Select(a => new ApplicationDetailsDto
+                {
+                    ApplicationId = a.Id,
+                    ApplicantId = a.ApplicantId,
+                    FirstName = a.Applicant.FirstName,
+                    LastName = a.Applicant.LastName,
+                    Email = a.Applicant.Email,
+                    EducationLevel = a.Applicant.EducationLevel,
+                    YearsOfExperience = a.Applicant.YearsOfExperience,
+                    Status = a.Status,
+                    IsShortlisted = a.IsShortlisted,
+                    ShortlistRank = a.ShortlistRank,
+                    AppliedAt = a.AppliedAt
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ApplicationDetailsDto>> FilterByEducationAsync(
+            int jobPostingId, 
+            EducationLevel educationLevel)
+        {
+            return await _context.Applications
+                .Where(a => a.JobPostingId == jobPostingId && a.Applicant.EducationLevel >= educationLevel)
+                .Include(a => a.Applicant)
+                .Select(a => new ApplicationDetailsDto
+                {
+                    ApplicationId = a.Id,
+                    ApplicantId = a.ApplicantId,
+                    FirstName = a.Applicant.FirstName,
+                    LastName = a.Applicant.LastName,
+                    Email = a.Applicant.Email,
+                    EducationLevel = a.Applicant.EducationLevel,
+                    YearsOfExperience = a.Applicant.YearsOfExperience,
+                    Status = a.Status,
+                    IsShortlisted = a.IsShortlisted,
+                    AppliedAt = a.AppliedAt
+                })
+                .ToListAsync();
+        }
+        
+        public async Task <ApplicantDto> CreateApplicant(CreateApplicantDto createApplicantDto)
+        {
+            var response = new ApplicantDto();
+                       // Check if applicant exists
+            var applicant = await _context.Applicants
+                .FirstOrDefaultAsync(a => a.Email == createApplicantDto.Email);
+
+            if (applicant == null)
+            {
+                applicant = new Applicant
+                {
+                    FirstName = createApplicantDto.FirstName,
+                    LastName = createApplicantDto.LastName,
+                    Email = createApplicantDto.Email,
+                    PhoneNumber = createApplicantDto.PhoneNumber,
+                    EducationLevel =createApplicantDto.EducationLevel,
+                    YearsOfExperience = createApplicantDto.YearsOfExperience,
+                    Skills = createApplicantDto.Skills,
+                    ResumeUrl = "No uploads yet",
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "Admin"
+                };
+
+                _context.Applicants.Add(applicant);
+                await _context.SaveChangesAsync();
+            }
+            return response;
+        }
+        public async Task<Application> UpdateApplicationStatusAsync(
+            int applicationId, 
+            ApplicationStatus status, 
+            int userId, 
+            string comments)
+        {
+            var application = await GetApplicationByIdAsync(applicationId);
+            
+            if (application == null)
+                return null;
+
+            var oldStatus = application.Status;
+            application.Status = status;
+            application.StatusUpdatedAt = DateTime.UtcNow;
+
+            // Track status history
+            var history = new ApplicationStatusHistory
+            {
+                ApplicationId = applicationId,
+                FromStatus = oldStatus,
+                ToStatus = status,
+                ChangedByUserId = userId,
+                Comments = comments,
+                ChangedAt = DateTime.UtcNow
+            };
+
+            _context.ApplicationStatusHistories.Add(history);
+            await _context.SaveChangesAsync();
+
+            return application;
+        }
+
+        public async Task ImportCandidateAsync(ExternalCandidateDto candidate)
+        {
+            var existingApplicant = await _context.Applicants
+                .FirstOrDefaultAsync(a => a.Email == candidate.Email);
+
+            if (existingApplicant != null)
+                return;
+
+            var applicant = new Applicant
+            {
+                FirstName = candidate.FirstName,
+                LastName = candidate.LastName,
+                Email = candidate.Email,
+                PhoneNumber = candidate.PhoneNumber,
+                ResumeUrl = candidate.ResumeUrl,
+                EducationLevel = candidate.EducationLevel,
+                YearsOfExperience = candidate.YearsOfExperience,
+                Skills = candidate.Skills
+            };
+
+            _context.Applicants.Add(applicant);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<IEnumerable<ApplicantDto>> GetAllAsync()
+        {
+            var result = new List<ApplicantDto>();
+            
+            return result;
+        }
+    }
+}

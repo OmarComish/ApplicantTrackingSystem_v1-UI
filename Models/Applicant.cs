@@ -19,7 +19,7 @@ namespace ATS.API.Models;
         [Phone]
         public string PhoneNumber { get; set; }
         
-        public string ResumeUrl { get; set; }
+        public string? ResumeUrl { get; set; }
         
         [Required]
         public EducationLevel EducationLevel { get; set; }
