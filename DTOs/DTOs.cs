@@ -13,7 +13,7 @@ namespace ATS.API.DTOs
         public string Title { get; set; }
         
         [Required]
-        [MaxLength(300)]
+        [MaxLength(500)]
         public string Description { get; set; }
         
         [Required]
@@ -24,14 +24,14 @@ namespace ATS.API.DTOs
         public string Location { get; set; }
         
         [Required]
-        [MaxLength(350)]
+        [MaxLength(500)]
         public string Requirements { get; set; }
         
         public decimal? SalaryMin { get; set; }
         public decimal? SalaryMax { get; set; }
 
         [Required]
-        [MaxLength(250)]
+        [MaxLength(500)]
         public string Responsibilities {get; set;}
 
         [Required]

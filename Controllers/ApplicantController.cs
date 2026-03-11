@@ -127,7 +127,7 @@ namespace ATS.API.Controllers
             return Ok(application);
         }
 
-        [HttpGet("{applicantId}")]
+        [HttpGet("jobapplications/{applicantId}")]
         public async Task<ActionResult<Application>> GetJobApplication(int applicantId)
         {
             var applications = await _applicantService.GetJobApplicationByIdAsync(applicantId);
