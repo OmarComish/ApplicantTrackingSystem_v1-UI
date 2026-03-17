@@ -118,6 +118,7 @@ namespace ATS.API.Services
                     MatchedSkills = applicantscore.MatchedSkills,
                     MissingSkills = applicantscore.MissingSkills,
                     CreatedAt = DateTime.UtcNow,
+                    Reasoning = applicantscore.Reasoning,
                     CreatedBy = "system"
                 });
             }

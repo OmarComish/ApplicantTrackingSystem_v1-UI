@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ATS.API.Data;
 using ATS.API.Models;
 using ATS.API.DTOs;
+using ATS.API.Interfaces;
 
 namespace ATS.API.Services
 {
@@ -11,18 +12,20 @@ namespace ATS.API.Services
         Task<IEnumerable<ApplicationDetailsDto>> RankByExperienceAsync(int jobPostingId);
         Task<IEnumerable<ApplicationDetailsDto>> GetShortlistedApplicantsAsync(int jobPostingId);
         Task<ShortlistResultDto> AutoShortlistAsync(int jobPostingId, ShortlistCriteriaDto criteria);
+        Task AutoRankApplicants();
     }
 
     // Shortlisting Service Implementation
     public class ShortlistingService : IShortlistingService
     {
         private readonly AtsDbContext _context;
+        private readonly IRankingService _rankingservice;
 
-        public ShortlistingService(AtsDbContext context)
+        public ShortlistingService(AtsDbContext context,IRankingService rankingservice)
         {
             _context = context;
+            _rankingservice = rankingservice;
         }
-
         public async Task<IEnumerable<ApplicationDetailsDto>> RankByExperienceAsync(int jobPostingId)
         {
             var applications = await _context.Applications
@@ -53,7 +56,6 @@ namespace ATS.API.Services
 
             return applications;
         }
-
         public async Task<IEnumerable<ApplicationDetailsDto>> GetShortlistedApplicantsAsync(int jobPostingId)
         {
             return await _context.Applications
@@ -76,7 +78,55 @@ namespace ATS.API.Services
                 })
                 .ToListAsync();
         }
+        public async Task AutoRankApplicants()
+        {
+           var applicationsData = await _context.Applications
+                .Where(a => a.Status == ApplicationStatus.New)
+                .Include(a => a.JobPosting)
+                .Include(a => a.Applicant)
+                .Select(a => new
+                {
+                    ApplicationId = a.Id,
+                    JobDescription = $"{a.JobPosting.Title}. {a.JobPosting.Description}. " +
+                                    $"Requirements: {a.JobPosting.Requirements}. " +
+                                    $"Responsibilities: {a.JobPosting.Responsibilities}",
+                    Applicant = new ResumeData
+                    {
+                        Id = a.ApplicantId.ToString(),
+                        ApplicantName = $"{a.Applicant.FirstName} {a.Applicant.LastName}",
+                        Text = $"{a.Applicant.Skills}. " +
+                            $"{a.Applicant.YearsOfExperience} years of experience. " +
+                            $"Education: {a.Applicant.EducationLevel}"
+                    }
+                })
+            .ToListAsync();
 
+            var groupedByJob = applicationsData.GroupBy(a => a.JobDescription);
+
+            foreach (var jobGroup in groupedByJob)
+            {
+             var jobDescription = jobGroup.Key;
+             var applicants = jobGroup.Select(g => g.Applicant).ToList();
+
+             var rankedApplicants = await _rankingservice.RankApplicants(jobDescription, applicants);
+
+              // Step 5: Update applications with ranking results
+               /*foreach (var ranked in rankedApplicants)
+                {
+                    var application = await _context.Applications
+                        .FirstOrDefaultAsync(a => a.ApplicantId == int.Parse(ranked.ApplicantId) 
+                                            && a.Status == ApplicationStatus.New);
+                    if (application != null)
+                    {
+                        //application.ShortlistRank = ranked.Rank; // adjust to your RankApplicants return type
+                        application.IsShortlisted = true;
+                        application.StatusUpdatedAt = DateTime.UtcNow;
+                    }
+                }*/
+
+                //await _context.SaveChangesAsync();
+            }
+        }
         public async Task<ShortlistResultDto> AutoShortlistAsync(
             int jobPostingId, 
             ShortlistCriteriaDto criteria)

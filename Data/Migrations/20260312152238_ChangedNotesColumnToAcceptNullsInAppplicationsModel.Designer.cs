@@ -3,6 +3,7 @@ using System;
 using ATS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ATS.API.Data.Migrations
 {
     [DbContext(typeof(AtsDbContext))]
-    partial class AtsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260312152238_ChangedNotesColumnToAcceptNullsInAppplicationsModel")]
+    partial class ChangedNotesColumnToAcceptNullsInAppplicationsModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

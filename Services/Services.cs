@@ -13,7 +13,7 @@ namespace ATS.API.Services
         Task<bool> DeleteJobPostingAsync(int id);
         Task<JobPosting> CloseJobPostingAsync(int id);
         Task<JobPosting> GetJobPostingByIdAsync(int id);
-        Task<IEnumerable<JobPosting>> GetAllJobPostingsAsync(JobStatus? status = null, string department = null);
+        Task<IEnumerable<ReadJobPostingDto>> GetAllJobPostingsAsync(JobStatus? status = null, string department = null);
     }
 
     // Job Posting Service Implementation
@@ -111,7 +111,7 @@ namespace ATS.API.Services
                 .FirstOrDefaultAsync(j => j.Id == id);
         }
 
-        public async Task<IEnumerable<JobPosting>> GetAllJobPostingsAsync(JobStatus? status = null, string department = null)
+        public async Task<IEnumerable<ReadJobPostingDto>> GetAllJobPostingsAsync(JobStatus? status = null, string department = null)
         {
             var query = _context.JobPostings.AsQueryable();
 
@@ -121,7 +121,30 @@ namespace ATS.API.Services
             if (!string.IsNullOrEmpty(department))
                 query = query.Where(j => j.Department == department);
 
-            return await query.OrderByDescending(j => j.CreatedAt).ToListAsync();
+            //return await query.OrderByDescending(j => j.CreatedAt).ToListAsync();
+            return await _context.JobPostings
+                   .GroupJoin(
+                    _context.Applications,
+                    j =>j.Id,
+                    a =>a.JobPostingId,
+                    (j, applications) => new {Job =j, Applicants = applications.Count()})
+                    .Select(x => new ReadJobPostingDto
+                    {
+                        JobPostingId = x.Job.Id,
+                        JobTitle = x.Job.Title,
+                        Department = x.Job.Department,
+                        Location = x.Job.Location,
+                        Status = x.Job.Status.ToString(),
+                        Applicants = x.Applicants
+                        /*JobPostingId = x.
+                        JobTitle = j.Title,
+                        Department = j.Department,
+                        Location = j.Location,
+                        Status = j.Status.ToString(),
+                        Applicants = applications.Count()*/
+                        
+                    })
+                    .ToListAsync();
         }
     }
 

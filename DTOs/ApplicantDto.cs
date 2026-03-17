@@ -10,15 +10,12 @@ namespace ATS.API.DTOs
     public class ApplicantDto
     {
         public int Id { get; set; }
-        public string FirstName {get; set;} 
-        public string LastName {get; set;} 
-        public string Email {get; set;}
-        public string PhoneNumber {get; set;}
-        public DateTime DateofBirth { get; set; }
-
-        [MaxLength(500)]
-        public string Skills {get; set;}
-        public EducationLevel EducationLevel {get; set;}
+        public string Name {get; set;}
+        public string JobTitle {get; set;} 
+        public decimal Score {get; set;}
+        public string Education {get; set;}
+        public int Experience { get; set; }
+        public string Status {get; set;}
     }
     public class CreateApplicantDto 
     {
@@ -42,4 +39,13 @@ namespace ATS.API.DTOs
         public int YearsOfExperience { get; set; }
 
     }
+    public record CreateApplicationDto1
+    {
+        public int Id {get; set;}
+        public int JobPostingId {get; set;}
+        [MaxLength(800)]
+        public string CoverLetter {get; set;}
+    }
+
+    
 }

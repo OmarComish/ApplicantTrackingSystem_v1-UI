@@ -48,6 +48,13 @@ namespace ATS.API.Controllers
             return Ok(applicants);
         }
 
+        [HttpGet("AllApplicantListings")]
+        public async Task<ActionResult<IEnumerable<ApplicantDto>>> GetAllApplicants()
+        {
+            var applicants = await _applicantService.GetApplicantsListingsAsync();
+            return Ok(applicants);
+        }
+
         // US-2.3: Rank applicants based on years of experience
         [HttpGet("job/{jobPostingId}/rank")]
         public async Task<ActionResult<IEnumerable<ApplicationDetailsDto>>> RankByExperience(int jobPostingId)
@@ -100,12 +107,12 @@ namespace ATS.API.Controllers
 
         // Create application (for applicant submission)
         [HttpPost("apply")]
-        public async Task<ActionResult<Application>> SubmitApplication([FromBody] CreateApplicationDto dto)
+        public async Task<ActionResult<ResponseDto>> SubmitApplication([FromBody] CreateApplicationDto1 dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var application = await _applicantService.CreateApplicationAsync(dto);
+            var response = await _applicantService.CreateApplicationAsync(dto);
 
             // Sync with external ATS via Merge.dev
             //await _mergeClient.CreateApplicationAsync(application);
@@ -113,27 +120,28 @@ namespace ATS.API.Controllers
             // Send confirmation email
             //await _notificationService.SendApplicationConfirmationAsync(application);
 
-            return CreatedAtAction(nameof(GetApplication), new { id = application.Id }, application);
+            return response;//CreatedAtAction(nameof(GetApplication), new { id = application.Id }, application);
         }
 
         [HttpGet("{applicationId}")]
-        public async Task<ActionResult<Application>> GetApplication(int applicationId)
+        public async Task<ActionResult<ApplicationResponseDto>> GetApplication(int applicationId)
         {
-            var application = await _applicantService.GetApplicationByIdAsync(applicationId);
+            //var application = await _applicantService.GetApplicationByIdAsync(applicationId);
+            var applications = await _applicantService.GetJobApplicationByIdAsync(applicationId);
             
-            if (application == null)
+            if (applications == null)
                 return NotFound($"Application with ID {applicationId} not found.");
 
-            return Ok(application);
+            return Ok(applications);
         }
 
-        [HttpGet("jobapplications/{applicantId}")]
-        public async Task<ActionResult<Application>> GetJobApplication(int applicantId)
+        [HttpGet("jobsapplied/{Id}")]
+        public async Task<ActionResult<IEnumerable<ApplicationResponseDto>>> GetJobApplication(int Id)
         {
-            var applications = await _applicantService.GetJobApplicationByIdAsync(applicantId);
+            var applications = await _applicantService.GetJobApplicationByIdAsync(Id);
              
              if (applications == null)
-                return NotFound($"Application with ID {applicantId} not found.");
+                return NotFound($"Application with ID {Id} not found.");
 
             return Ok(applications);
         }
@@ -194,6 +202,14 @@ namespace ATS.API.Controllers
             }
 
             return Ok(rankedApplicants);
+        }
+
+         [HttpGet("AutoRankApplicants")]
+        public async Task<ActionResult> AutoRankApplicants()
+        {
+            var response = new ResponseDto {Status ="success", Message="Auto ranking initiated successfully"};
+            await _shortlistingService.AutoRankApplicants();
+            return Ok(response);
         }
         // US: Upload resume/CV file
         [HttpPost("upload-resume")]

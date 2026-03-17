@@ -17,13 +17,14 @@ namespace ATS.API.Services
         {
             _context = context;
         }
-        public async Task<Application> CreateApplicationAsync(CreateApplicationDto dto)
+        public async Task<ResponseDto> CreateApplicationAsync(CreateApplicationDto1 dto)
         {
+            var response = new ResponseDto{Status = "error", Message ="An error occurred submitting your application"};
             // Check if applicant exists
             var applicant = await _context.Applicants
-                .FirstOrDefaultAsync(a => a.Email == dto.Email);
+                .FirstOrDefaultAsync(a => a.Id == dto.Id);
 
-            if (applicant == null)
+            /*if (applicant == null)
             {
                 applicant = new Applicant
                 {
@@ -41,8 +42,8 @@ namespace ATS.API.Services
 
                 _context.Applicants.Add(applicant);
                 await _context.SaveChangesAsync();
-            }
-
+            }*/
+           if(applicant == null) return response;
             var application = new Application
             {
                 JobPostingId = dto.JobPostingId,
@@ -50,16 +51,20 @@ namespace ATS.API.Services
                 CoverLetter = dto.CoverLetter,
                 Status = ApplicationStatus.New,
                 AppliedAt = DateTime.UtcNow,
-                Notes = dto.Notes,
+                //Notes = dto.Notes,
                 CreatedAt = DateTime.UtcNow
             };
 
             _context.Applications.Add(application);
             await _context.SaveChangesAsync();
 
-            return await GetApplicationByIdAsync(application.Id);
+            response.Status ="success"; 
+            response.Message = "Job application submitted successfully";
+            //response.Payload = await GetApplicationByIdAsync(application.Id);
+
+            return  response; //await GetApplicationByIdAsync(application.Id);
         }
-        public async Task<Application> GetApplicationByIdAsync(int id)
+        private async Task<Application> GetApplicationByIdAsync(int id)
         {
             return await _context.Applications
                 .Include(a => a.Applicant)
@@ -67,14 +72,38 @@ namespace ATS.API.Services
                 .Include(a => a.StatusHistory)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
-
-        public async Task<Application> GetJobApplicationByIdAsync(int applicantId)
+        public async Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int applicantId)
         {
-             return await _context.Applications
+            
+                return await _context.Applications
+                    .Where(a => a.ApplicantId == applicantId)
+                    .Select(a => new ApplicationResponseDto
+                    {
+                        Id = a.Id,
+                        Status = a.Status.ToString(),
+                        JobTitle = a.JobPosting.Title,
+                        Location = a.JobPosting.Location,
+                        AppliedDate = a.AppliedAt,
+                        Company = a.JobPosting.Company.Name // Navigate through JobPosting to Company
+                    }).ToListAsync();
+        }
+        public async Task<IEnumerable<ApplicantDto>> GetApplicantsListingsAsync()
+        {
+          return await _context.Applications
+                .Where(a => a.JobPosting.Status == JobStatus.Open)
                 .Include(a => a.Applicant)
                 .Include(a => a.JobPosting)
-                .Include(a => a.StatusHistory)
-                .FirstOrDefaultAsync(a => a.ApplicantId == applicantId);
+                .Select(a => new ApplicantDto
+                {
+                    Id = a.Id,
+                    JobTitle = a.JobPosting.Title,
+                    Name = $"{a.Applicant.FirstName} {a.Applicant.LastName}",
+                    Education = a.Applicant.EducationLevel.ToString(),
+                    Experience = a.Applicant.YearsOfExperience,
+                    Status = a.Status.ToString()
+                })
+                .ToListAsync();
+
         }
         public async Task<IEnumerable<ApplicationDetailsDto>> GetApplicantsByJobPostingAsync(int jobPostingId)
         {
@@ -97,7 +126,6 @@ namespace ATS.API.Services
                 })
                 .ToListAsync();
         }
-
         public async Task<IEnumerable<ApplicationDetailsDto>> FilterByEducationAsync(
             int jobPostingId, 
             EducationLevel educationLevel)
@@ -120,7 +148,7 @@ namespace ATS.API.Services
                 })
                 .ToListAsync();
         }
-        
+    
         public async Task <ApplicantDto> CreateApplicant(CreateApplicantDto createApplicantDto)
         {
             var response = new ApplicantDto();

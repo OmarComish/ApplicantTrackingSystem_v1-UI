@@ -82,7 +82,7 @@ namespace ATS.API.Controllers
 
         // US-1.4: View all job postings
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<JobPosting>>> GetAllJobPostings(
+        public async Task<ActionResult<IEnumerable<ReadJobPostingDto>>> GetAllJobPostings(
             [FromQuery] JobStatus? status = null,
             [FromQuery] string department = null)
         {
@@ -107,9 +107,9 @@ namespace ATS.API.Controllers
         {
             var jobPostings = await _jobPostingService.GetAllJobPostingsAsync();
             
-            foreach (var job in jobPostings.Where(j => j.Status == JobStatus.Open))
+            foreach (var job in jobPostings.Where(j => j.Status == JobStatus.Open.ToString()))
             {
-                await _openCatsClient.SyncJobOrderAsync(job);
+                // await _openCatsClient.SyncJobOrderAsync(job);
             }
 
             return Ok(new { message = "Job postings synced successfully" });

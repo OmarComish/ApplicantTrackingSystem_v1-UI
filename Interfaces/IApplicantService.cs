@@ -9,14 +9,15 @@ namespace ATS.API.Interfaces
 {
     public interface IApplicantService
     {
-        Task<Application> CreateApplicationAsync(CreateApplicationDto dto);
-        Task<Application> GetApplicationByIdAsync(int id);
+        Task<ResponseDto> CreateApplicationAsync(CreateApplicationDto1 dto);
+        //Task<Application> GetApplicationByIdAsync(int id);
         Task<IEnumerable<ApplicationDetailsDto>> GetApplicantsByJobPostingAsync(int jobPostingId);
         Task<IEnumerable<ApplicationDetailsDto>> FilterByEducationAsync(int jobPostingId, EducationLevel educationLevel);
         Task<Application> UpdateApplicationStatusAsync(int applicationId, ApplicationStatus status, int userId, string comments);
         Task ImportCandidateAsync(ExternalCandidateDto candidate);
         Task <ApplicantDto> CreateApplicant(CreateApplicantDto createApplicantDto);
         Task<IEnumerable<ApplicantDto>> GetAllAsync();
-        Task<Application> GetJobApplicationByIdAsync(int id);
+        Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int id);
+        Task<IEnumerable<ApplicantDto>> GetApplicantsListingsAsync();
     }
 }

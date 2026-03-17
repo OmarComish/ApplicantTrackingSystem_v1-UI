@@ -42,5 +42,6 @@ public class JobPosting: BaseEntity
 
         // Navigation properties
         public virtual ICollection<Application> Applications { get; set; }
+        public Company Company { get; set; } 
         
 }

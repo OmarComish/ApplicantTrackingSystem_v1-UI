@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ATS.API.Models;
     public class Application: BaseEntity
     {
@@ -9,9 +11,10 @@ namespace ATS.API.Models;
         public string CoverLetter { get; set; }
         public DateTime AppliedAt { get; set; }
         public DateTime? StatusUpdatedAt { get; set; }
-        public string Notes { get; set; }
+        public string? Notes { get; set; } = null;
         
         // Navigation properties
+        [JsonIgnore]
         public virtual JobPosting JobPosting { get; set; }
         public virtual Applicant Applicant { get; set; }
         public virtual ICollection<ApplicationStatusHistory> StatusHistory { get; set; }
