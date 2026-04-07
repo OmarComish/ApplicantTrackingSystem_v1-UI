@@ -100,7 +100,17 @@ namespace ATS.API.Services
                     Name = $"{a.Applicant.FirstName} {a.Applicant.LastName}",
                     Education = a.Applicant.EducationLevel.ToString(),
                     Experience = a.Applicant.YearsOfExperience,
-                    Status = a.Status.ToString()
+                    Status = a.Status.ToString(),
+                    Score = (decimal)(_context.ApplicantScores
+                     .Where( s =>s.ApplicantId == a.ApplicantId.ToString())
+                     .OrderByDescending(s =>s.CreatedAt)
+                     .Select(s =>s.Score)
+                     .FirstOrDefault()),
+                     Reasoning = _context.ApplicantScores
+                        .Where(s =>s.ApplicantId == a.ApplicantId.ToString())
+                        .OrderByDescending(s =>s.CreatedAt)
+                        .Select(s =>s.Reasoning)
+                        .FirstOrDefault()
                 })
                 .ToListAsync();
 

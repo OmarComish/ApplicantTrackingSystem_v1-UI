@@ -16,6 +16,7 @@ namespace ATS.API.DTOs
         public string Education {get; set;}
         public int Experience { get; set; }
         public string Status {get; set;}
+        public string Reasoning {get; set;}
     }
     public class CreateApplicantDto 
     {
