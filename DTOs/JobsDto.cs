@@ -7,8 +7,8 @@ namespace ATS.API.DTOs
 {
     public class ReadJobPostingDto
     {
-        public int JobPostingId { get; set; }
-        public string JobTitle {get; set;} = string.Empty;
+        public int Id { get; set; }
+        public string Title {get; set;} = string.Empty;
         public string Department {get; set;} = string.Empty;
         public string Location {get; set;} = string.Empty;
         public int Applicants { get; set; } 

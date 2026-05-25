@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
     {
@@ -28,14 +28,18 @@ builder.Services.AddSwaggerGen(c =>
         });
     }
 );
+builder.Services.AddCors(opt =>opt.AddPolicy("ApiCorsPolicy", options => options.AllowAnyOrigin()
+.AllowAnyMethod().AllowAnyHeader()));
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 
 //Database
-/*builder.Services.AddDbContext<AtsDbContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));*/
-
 builder.Services.AddDbContext<AtsDbContext>(options =>
+options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+/*builder.Services.AddDbContext<AtsDbContext>(options =>
  options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), new MySqlServerVersion(new Version(8,0,35)))
-);
+);*/
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -69,8 +73,11 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IRankingService, ApplicantRankingService>();
 builder.Services.AddScoped<ICompanyService, CompanyServiceRepository>();
 builder.Services.AddScoped<IJobNotificationService, JobNotificationServiceRepository>();
+builder.Services.AddHttpClient<IApiService, ApiService>();
+builder.Services.AddTransient<IAuthentication, AuthenticationService>();
 
 // External API clients
+/*
 builder.Services.AddHttpClient<IOpenCatsClient, OpenCatsClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ExternalApis:OpenCats:BaseUrl"]);
@@ -91,10 +98,10 @@ builder.Services.AddHttpClient<IMergeClient, MergeClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ExternalApis:Merge:BaseUrl"]);
     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {builder.Configuration["ExternalApis:Merge:ApiKey"]}");
-});
+});*/
 
 // CORS
-builder.Services.AddCors(options =>
+/*builder.Services.AddCors(options =>
 {
     options.AddPolicy("ApiCorsPolicy", policy =>
     {
@@ -102,7 +109,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
-});
+});*/
 
 var app = builder.Build();
 

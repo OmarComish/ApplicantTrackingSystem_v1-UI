@@ -130,8 +130,8 @@ namespace ATS.API.Services
                     (j, applications) => new {Job =j, Applicants = applications.Count()})
                     .Select(x => new ReadJobPostingDto
                     {
-                        JobPostingId = x.Job.Id,
-                        JobTitle = x.Job.Title,
+                        Id = x.Job.Id,
+                        Title = x.Job.Title,
                         Department = x.Job.Department,
                         Location = x.Job.Location,
                         Status = x.Job.Status.ToString(),
