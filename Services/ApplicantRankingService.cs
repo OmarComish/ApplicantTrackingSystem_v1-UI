@@ -85,7 +85,9 @@ namespace ATS.API.Services
         public async Task<List<ApplicantScore>> RankApplicants(string jobDescription, List<ResumeData> applicants)
         {
             //Step 1: Extract features
+            Console.WriteLine("In RankApplicants service");
             var features = applicants.Select(a =>ExtractFeatures(jobDescription,a)).ToList();
+            Console.WriteLine($"Features extracted: {features.Count}");
 
             //Step 2: Scoe using ML.NET model or fallback to rule-based
             var scores = new List<ApplicantScore>();
@@ -103,7 +105,7 @@ namespace ATS.API.Services
             //persist the scores to the database here...
            await LogApplicantScore(scores);
 
-            return scores.OrderByDescending(s =>s.Score).ToList();
+          return scores.OrderByDescending(s =>s.Score).ToList();
         }
         private async Task LogApplicantScore(List<ApplicantScore> applicantScores)
         {

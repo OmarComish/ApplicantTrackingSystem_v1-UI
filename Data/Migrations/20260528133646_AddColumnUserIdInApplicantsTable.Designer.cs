@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ATS.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ATS.API.Data.Migrations
 {
     [DbContext(typeof(AtsDbContext))]
-    partial class AtsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260528133646_AddColumnUserIdInApplicantsTable")]
+    partial class AddColumnUserIdInApplicantsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +40,6 @@ namespace ATS.API.Data.Migrations
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EducationLevel")
                         .IsRequired()

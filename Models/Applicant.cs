@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations;
 namespace ATS.API.Models;
     public class Applicant: BaseEntity
     {
+        [Required]
+        public Guid UserId {get; set;}
         
         [Required]
         [MaxLength(100)]
@@ -23,6 +25,8 @@ namespace ATS.API.Models;
         
         [Required]
         public EducationLevel EducationLevel { get; set; }
+        [Required]
+        public DateTime DateOfBirth {get; set;}
         
         public int YearsOfExperience { get; set; }
         

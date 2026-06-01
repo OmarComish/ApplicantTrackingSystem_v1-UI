@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
 using ATS.API.DTOs;
@@ -103,9 +104,15 @@ public class ApiService : IApiService
     }
     public async Task<AuthResponseDto> SignInAsync(LogInRequestDto request)
     {
-        var response = new AuthResponseDto {Status ="error", Message =" Failed to login"};
+        var response = new AuthResponseDto {Status ="error", Message ="Invalid username or password. Failed to login"};
+
+        var userdetails = await GetUserDetails(request.Username);
+        if(userdetails == null)
+           return response;
+
+        request.Username = userdetails?.NormalizedUserName;
         
-        _httpClient.BaseAddress = new Uri(_config["IdentityService:identityServerUrl"]);
+        //_httpClient.BaseAddress = new Uri(_config["IdentityService:identityServerUrl"]);
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -114,7 +121,9 @@ public class ApiService : IApiService
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
         //send post request
-        HttpResponseMessage result = await _httpClient.PostAsync(_config["Endpoint:UserLogin"], content);
+        var url = $"{_config["IdentityService:identityServerUrl"]}{_config["Endpoint:UserLogin"]}"; 
+
+        HttpResponseMessage result = await _httpClient.PostAsync(url, content);
         if(result.IsSuccessStatusCode)
         {
             var responsecontent = await result.Content.ReadAsStringAsync();
@@ -124,6 +133,33 @@ public class ApiService : IApiService
         else
         {
             throw new Exception($"Request failed with status code {result.StatusCode}");
+        }
+    }
+    public async Task<UserDetailsDto> GetUserDetails(string email)
+    {
+        // Set up HttpClient base address and accept header
+        //_httpClient.BaseAddress = new Uri(_config["IdentityService:identityServerUrl"]);
+        _httpClient.DefaultRequestHeaders.Accept.Clear();
+        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        // Build URL with email query parameter (encode to handle special characters)
+        string url = $"{_config["IdentityService:identityServerUrl"]}{_config["Endpoint:GetUserDetails"]}{Uri.EscapeDataString(email)}";
+
+        // Send GET request
+        var httpResponse = await _httpClient.GetAsync(url);
+
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            // Read and deserialize the JSON response to UserDetailsDto
+            var json = await httpResponse.Content.ReadAsStringAsync();
+            var userDetails = JsonConvert.DeserializeObject<UserDetailsDto>(json);
+            return userDetails;
+        }
+        else
+        {
+            // Handle error cases - throw an exception with details
+            throw new HttpRequestException(
+                $"Failed to get user details for email '{email}'. Status code: {httpResponse.StatusCode}");
         }
     }
 }

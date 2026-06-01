@@ -7,6 +7,7 @@ using ATS.API.Interfaces;
 using ATS.API.Mapping;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
+using ATS.API.Services.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,8 +77,11 @@ builder.Services.AddScoped<IJobNotificationService, JobNotificationServiceReposi
 builder.Services.AddHttpClient<IApiService, ApiService>();
 builder.Services.AddTransient<IAuthentication, AuthenticationService>();
 
+// Register the background service
+builder.Services.AddApplicantRankingService(builder.Configuration);
+
 // External API clients
-/*
+
 builder.Services.AddHttpClient<IOpenCatsClient, OpenCatsClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ExternalApis:OpenCats:BaseUrl"]);
@@ -98,7 +102,7 @@ builder.Services.AddHttpClient<IMergeClient, MergeClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ExternalApis:Merge:BaseUrl"]);
     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {builder.Configuration["ExternalApis:Merge:ApiKey"]}");
-});*/
+});
 
 // CORS
 /*builder.Services.AddCors(options =>

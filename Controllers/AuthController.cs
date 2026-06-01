@@ -24,7 +24,13 @@ public class AuthController: ControllerBase
        
         return Ok(response);
     }
-    [Authorize(Policy = "ApiScope")]
+    [HttpGet("GetUserDetails")]
+    public async Task<IActionResult> UserDetails(string email)
+    {
+        var response = await _authservice.GetUser(email);
+        return Ok(response);
+    }
+    //[Authorize(Policy = "ApiScope")]
     [HttpPost("registerUser")]
     public async Task<IActionResult> RegisterUser([FromBody] RegisterUserDto dto)
     {

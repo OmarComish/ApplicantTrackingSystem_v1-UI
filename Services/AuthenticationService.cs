@@ -1,3 +1,4 @@
+using System.Reflection.Metadata.Ecma335;
 using ATS.API.DTOs;
 using ATS.API.Interfaces;
 
@@ -13,7 +14,7 @@ public class AuthenticationService : IAuthentication
     }
     public async Task<AuthResponseDto> AuthenticateUser(LogInRequestDto dto)
     {
-        //var response = new AuthResponseDto {Status ="error", Message ="Invalid username or password"};
+        
         Console.WriteLine("Requesting signin to identity server...");
 
         var userdetails = await _apiservice.SignInAsync(dto);
@@ -23,7 +24,7 @@ public class AuthenticationService : IAuthentication
             return new AuthResponseDto
             {
                 Status ="error",
-                Message ="Invalid username or password"
+                Message ="Invalid username or password",
             };
         } 
 
@@ -61,12 +62,19 @@ public class AuthenticationService : IAuthentication
 
         if(!string.IsNullOrEmpty(tokenResponse.AccessToken))
         {
+
             return new AuthResponseDto
             {
                 Status ="success",
                 Message ="Successfully authenticated profile ",
-                Token = tokenResponse.AccessToken
+                Token = tokenResponse.AccessToken,
+                Email = userdetails.Email,
+                Roles = userdetails.Roles,
+                UserId = userdetails.UserId,
+                Username = userdetails.Username,
+       
             };
+            
         }
 
         return new AuthResponseDto
@@ -125,6 +133,17 @@ public class AuthenticationService : IAuthentication
         if(dto == null) 
            return response;
         response = await _apiservice.RegisterUserAsync(dto);
+        return response;
+    }
+    public async Task<ResponseDto> GetUser(string email)
+    {
+        var response = new ResponseDto {Message = "An error occurred. We failed to register user", 
+        Status ="error"};
+        if(email==null)
+          return response;
+        response.Status ="success";
+        response.Message ="Fetch request successful";
+        response.Payload = await _apiservice.GetUserDetails(email);
         return response;
     }
 }

@@ -109,10 +109,24 @@ namespace ATS.API.Controllers
         [HttpPost("apply")]
         public async Task<ActionResult<ResponseDto>> SubmitApplication([FromBody] CreateApplicationDto1 dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            foreach (var kvp in ModelState)
+            {
+                Console.WriteLine($"Key: {kvp.Key}");
 
-            var response = await _applicantService.CreateApplicationAsync(dto);
+                foreach (var error in kvp.Value.Errors)
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
+            }
+            var response = new ResponseDto {Status ="error", Message = "We could not submit the application"};
+            if (!ModelState.IsValid)
+            {
+                response.Message =$"{BadRequest(ModelState).ToString()}. We could not submit the application";
+                return response;
+            }
+                
+
+            response = await _applicantService.CreateApplicationAsync(dto);
 
             // Sync with external ATS via Merge.dev
             //await _mergeClient.CreateApplicationAsync(application);
@@ -262,6 +276,12 @@ namespace ATS.API.Controllers
 
             var result = await _applicantService.CreateApplicant(dto);
             return CreatedAtAction(nameof(GetApplication), new { applicationId= result.Id }, result);
+        }
+        [HttpGet("GetApplicantData/{UserId}")]
+        public async Task<ActionResult<ApplicantInfoDto>> GetApplicantInfo(Guid UserId)
+        {
+            var response = await _applicantService.GetApplicantByIdAsync(UserId);
+            return response;
         }
     }
 }

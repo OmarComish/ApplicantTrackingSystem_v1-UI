@@ -8,7 +8,7 @@ obj/Debug/*
 
 # Other files and folders
 .settings/
-
+wwwwroot/resumes/*
 # Executables
 *.swf
 *.air

@@ -21,6 +21,8 @@ namespace ATS.API.DTOs
     public class CreateApplicantDto 
     {
         [Required]
+        public Guid UserId {get; set;}
+        [Required]
         public string FirstName {get; set;} 
 
         [Required]
@@ -40,9 +42,22 @@ namespace ATS.API.DTOs
         public int YearsOfExperience { get; set; }
 
     }
+    public class ApplicantInfoDto 
+    {
+        public Guid UserId {get; set;}
+        public string FirstName {get; set;} 
+        public string LastName {get; set;} 
+        public string Email {get; set;}
+        public string PhoneNumber {get; set;}
+        public DateTime DateOfBirth { get; set; }
+        public string Skills {get; set;}
+        public EducationLevel EducationLevel {get; set;}
+        public int YearsOfExperience { get; set; }
+
+    }
     public record CreateApplicationDto1
     {
-        public int Id {get; set;}
+        public Guid Id {get; set;}
         public int JobPostingId {get; set;}
         [MaxLength(800)]
         public string CoverLetter {get; set;}

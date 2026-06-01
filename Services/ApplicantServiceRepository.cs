@@ -6,6 +6,7 @@ using ATS.API.Data;
 using ATS.API.DTOs;
 using ATS.API.Interfaces;
 using ATS.API.Models;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace ATS.API.Services
@@ -13,37 +14,24 @@ namespace ATS.API.Services
     public class ApplicantServiceRepository: IApplicantService
     {
          private readonly AtsDbContext _context;
-        public ApplicantServiceRepository(AtsDbContext context)
+         private readonly IMapper _mapper;
+        public ApplicantServiceRepository(AtsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         public async Task<ResponseDto> CreateApplicationAsync(CreateApplicationDto1 dto)
         {
             var response = new ResponseDto{Status = "error", Message ="An error occurred submitting your application"};
+            
             // Check if applicant exists
-            var applicant = await _context.Applicants
-                .FirstOrDefaultAsync(a => a.Id == dto.Id);
+           var applicant = await _context.Applicants.FirstOrDefaultAsync(a => a.UserId == dto.Id);
 
-            /*if (applicant == null)
-            {
-                applicant = new Applicant
-                {
-                    FirstName = dto.FirstName,
-                    LastName = dto.LastName,
-                    Email = dto.Email,
-                    PhoneNumber = dto.PhoneNumber,
-                    ResumeUrl = dto.ResumeUrl,
-                    EducationLevel = dto.EducationLevel,
-                    YearsOfExperience = dto.YearsOfExperience,
-                    Skills = dto.Skills,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "Admin"
-                };
-
-                _context.Applicants.Add(applicant);
-                await _context.SaveChangesAsync();
-            }*/
-           if(applicant == null) return response;
+           if(applicant == null) 
+           {
+             response.Message = $"No record found for your profile. Please add your profile first";
+             return response;
+           }
             var application = new Application
             {
                 JobPostingId = dto.JobPostingId,
@@ -170,6 +158,7 @@ namespace ATS.API.Services
             {
                 applicant = new Applicant
                 {
+                    UserId = createApplicantDto.UserId,
                     FirstName = createApplicantDto.FirstName,
                     LastName = createApplicantDto.LastName,
                     Email = createApplicantDto.Email,
@@ -247,6 +236,16 @@ namespace ATS.API.Services
             var result = new List<ApplicantDto>();
             
             return result;
+        }
+
+        public async Task<ApplicantInfoDto> GetApplicantByIdAsync(Guid Id)
+        {
+            var response = await _context.Applicants.Where(u =>u.UserId == Id).FirstOrDefaultAsync();
+
+            if(response == null)
+              return null;
+
+            return _mapper.Map<ApplicantInfoDto>(response);
         }
     }
 }

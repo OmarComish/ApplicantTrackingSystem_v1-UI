@@ -101,12 +101,18 @@ namespace ATS.API.Services
                 })
             .ToListAsync();
 
+            Console.WriteLine("=======================Ranking applicants initiate====================");
+            Console.WriteLine($"Applicants found: {applicationsData.Count}");
+            
+
             var groupedByJob = applicationsData.GroupBy(a => a.JobDescription);
 
             foreach (var jobGroup in groupedByJob)
             {
              var jobDescription = jobGroup.Key;
              var applicants = jobGroup.Select(g => g.Applicant).ToList();
+
+             Console.WriteLine($"Ranked applicants: {applicants.Count}");
 
              var rankedApplicants = await _rankingservice.RankApplicants(jobDescription, applicants);
 
