@@ -60,19 +60,23 @@ namespace ATS.API.Services
                 .Include(a => a.StatusHistory)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
-        public async Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int applicantId)
+        public async Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(Guid userId)
         {
             
                 return await _context.Applications
-                    .Where(a => a.ApplicantId == applicantId)
-                    .Select(a => new ApplicationResponseDto
+                .Join(_context.Applicants,
+                       application =>application.ApplicantId,
+                       applicant =>applicant.Id,
+                       (application, applicant)=>new {application, applicant})
+                    .Where(joined => joined.applicant.UserId == userId)
+                    .Select(joined => new ApplicationResponseDto
                     {
-                        Id = a.Id,
-                        Status = a.Status.ToString(),
-                        JobTitle = a.JobPosting.Title,
-                        Location = a.JobPosting.Location,
-                        AppliedDate = a.AppliedAt,
-                        Company = a.JobPosting.Company.Name // Navigate through JobPosting to Company
+                        Id = joined.application.Id,
+                        Status = joined.application.Status.ToString(),
+                        JobTitle = joined.application.JobPosting.Title,
+                        Location = joined.application.JobPosting.Location,
+                        AppliedDate = joined.application.AppliedAt,
+                        Company = joined.application.JobPosting.Company.Name // Navigate through JobPosting to Company
                     }).ToListAsync();
         }
         public async Task<IEnumerable<ApplicantDto>> GetApplicantsListingsAsync()

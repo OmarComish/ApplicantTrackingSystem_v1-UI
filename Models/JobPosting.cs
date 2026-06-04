@@ -12,7 +12,7 @@ public class JobPosting: BaseEntity
         public int CompanyId { get; set; }
         
         [Required]
-        [MaxLength(500)]
+        [MaxLength(1000)]
         public string Description { get; set; }
         
         [Required]
@@ -23,10 +23,10 @@ public class JobPosting: BaseEntity
         public string Location { get; set; }
         
         [Required]
-        [MaxLength(500)]
+        [MaxLength(1500)]
         public string Requirements { get; set; }
         [Required]
-        [MaxLength(500)]
+        [MaxLength(1500)]
         public string Responsibilities {get; set;}
         
         public decimal? SalaryMin { get; set; }

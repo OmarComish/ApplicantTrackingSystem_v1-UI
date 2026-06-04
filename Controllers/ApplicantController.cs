@@ -136,21 +136,23 @@ namespace ATS.API.Controllers
 
             return response;//CreatedAtAction(nameof(GetApplication), new { id = application.Id }, application);
         }
-
-        [HttpGet("{applicationId}")]
-        public async Task<ActionResult<ApplicationResponseDto>> GetApplication(int applicationId)
+        
+       
+        /*[HttpGet("/jobs/{Id}")]
+        public async Task<ActionResult<ApplicationResponseDto>> GetApplication(Guid Id)
         {
-            //var application = await _applicantService.GetApplicationByIdAsync(applicationId);
-            var applications = await _applicantService.GetJobApplicationByIdAsync(applicationId);
+            
+            var applications = await _applicantService.GetJobApplicationByIdAsync(Id);
             
             if (applications == null)
-                return NotFound($"Application with ID {applicationId} not found.");
+                return NotFound($"Applicant with ID {Id} not found.");
 
             return Ok(applications);
-        }
+        }*/
 
+         //US Get all jobs applicant applicant for
         [HttpGet("jobsapplied/{Id}")]
-        public async Task<ActionResult<IEnumerable<ApplicationResponseDto>>> GetJobApplication(int Id)
+        public async Task<ActionResult<IEnumerable<ApplicationResponseDto>>> GetJobApplication(Guid Id)
         {
             var applications = await _applicantService.GetJobApplicationByIdAsync(Id);
              
@@ -275,7 +277,7 @@ namespace ATS.API.Controllers
             if(dto == null) return BadRequest("Null or invald data. Failed to save to database") ;
 
             var result = await _applicantService.CreateApplicant(dto);
-            return CreatedAtAction(nameof(GetApplication), new { applicationId= result.Id }, result);
+            return CreatedAtAction(nameof(GetJobApplication), new { applicationId= result.Id }, result);
         }
         [HttpGet("GetApplicantData/{UserId}")]
         public async Task<ActionResult<ApplicantInfoDto>> GetApplicantInfo(Guid UserId)
@@ -283,5 +285,7 @@ namespace ATS.API.Controllers
             var response = await _applicantService.GetApplicantByIdAsync(UserId);
             return response;
         }
+
+
     }
 }

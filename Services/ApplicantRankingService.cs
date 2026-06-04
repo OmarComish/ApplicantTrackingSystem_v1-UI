@@ -89,7 +89,7 @@ namespace ATS.API.Services
             var features = applicants.Select(a =>ExtractFeatures(jobDescription,a)).ToList();
             Console.WriteLine($"Features extracted: {features.Count}");
 
-            //Step 2: Scoe using ML.NET model or fallback to rule-based
+            //Step 2: Score using ML.NET model or fallback to rule-based
             var scores = new List<ApplicantScore>();
 
             if(_model != null)
@@ -146,7 +146,6 @@ namespace ATS.API.Services
             }
             return scores;
         }
-
         private string GenerateReasoning(ApplicantFeatures features, double normalizedScore)
         {
             var reasons = new List<string>();
@@ -170,7 +169,6 @@ namespace ATS.API.Services
 
             return string.Join(". ", reasons);
         }
-
         private double CalculateExperienceMatch(ApplicantFeatures features)
         {
             //Return a normalized experience match score

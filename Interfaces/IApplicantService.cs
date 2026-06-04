@@ -17,7 +17,7 @@ namespace ATS.API.Interfaces
         Task ImportCandidateAsync(ExternalCandidateDto candidate);
         Task <ApplicantDto> CreateApplicant(CreateApplicantDto createApplicantDto);
         Task<IEnumerable<ApplicantDto>> GetAllAsync();
-        Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int id);
+        Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(Guid id);
         Task<IEnumerable<ApplicantDto>> GetApplicantsListingsAsync();
         Task<ApplicantInfoDto> GetApplicantByIdAsync(Guid Id);
     }
