@@ -22,7 +22,7 @@ namespace ATS.API.Services
         }
         public async Task<ResponseDto> CreateApplicationAsync(CreateApplicationDto1 dto)
         {
-            var response = new ResponseDto{Status = "error", Message ="An error occurred submitting your application"};
+           var response = new ResponseDto{Status = "error", Message ="An error occurred submitting your application"};
             
             // Check if applicant exists
            var applicant = await _context.Applicants.FirstOrDefaultAsync(a => a.UserId == dto.Id);
@@ -60,13 +60,29 @@ namespace ATS.API.Services
                 .Include(a => a.StatusHistory)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
-        public async Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(Guid userId)
+        public async Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int userId)
         {
             
-                return await _context.Applications
+                var query = from application in _context.Applications
+                          join applicant in _context.Applicants 
+                          on application.ApplicantId equals applicant.UserId
+                          where applicant.UserId == userId
+                            select new ApplicationResponseDto
+                            {
+                                Id = application.Id,
+                                Status = application.Status.ToString(),
+                                JobTitle = application.JobPosting.Title,
+                                Location = application.JobPosting.Location,
+                                AppliedDate = application.AppliedAt,
+                                Company = application.JobPosting.Company.Name
+                            };
+
+                           return await query.ToListAsync();
+
+                /*return await _context.Applications
                 .Join(_context.Applicants,
                        application =>application.ApplicantId,
-                       applicant =>applicant.Id,
+                       applicant =>applicant.UserId,
                        (application, applicant)=>new {application, applicant})
                     .Where(joined => joined.applicant.UserId == userId)
                     .Select(joined => new ApplicationResponseDto
@@ -77,11 +93,12 @@ namespace ATS.API.Services
                         Location = joined.application.JobPosting.Location,
                         AppliedDate = joined.application.AppliedAt,
                         Company = joined.application.JobPosting.Company.Name // Navigate through JobPosting to Company
-                    }).ToListAsync();
+                    }).ToListAsync();*/
         }
         public async Task<IEnumerable<ApplicantDto>> GetApplicantsListingsAsync()
         {
-          return await _context.Applications
+           
+                return  await _context.Applications
                 .Where(a => a.JobPosting.Status == JobStatus.Open)
                 .Include(a => a.Applicant)
                 .Include(a => a.JobPosting)
@@ -93,18 +110,17 @@ namespace ATS.API.Services
                     Education = a.Applicant.EducationLevel.ToString(),
                     Experience = a.Applicant.YearsOfExperience,
                     Status = a.Status.ToString(),
-                    Score = (decimal)(_context.ApplicantScores
-                     .Where( s =>s.ApplicantId == a.ApplicantId.ToString())
+                    Score = (decimal)_context.ApplicantScores
+                     .Where( s =>s.ApplicantId == a.ApplicantId)
                      .OrderByDescending(s =>s.CreatedAt)
                      .Select(s =>s.Score)
-                     .FirstOrDefault()),
+                     .FirstOrDefault(),
                      Reasoning = _context.ApplicantScores
-                        .Where(s =>s.ApplicantId == a.ApplicantId.ToString())
+                        .Where(s =>s.ApplicantId == a.ApplicantId)
                         .OrderByDescending(s =>s.CreatedAt)
                         .Select(s =>s.Reasoning)
                         .FirstOrDefault()
-                })
-                .ToListAsync();
+                }).ToListAsync();
 
         }
         public async Task<IEnumerable<ApplicationDetailsDto>> GetApplicantsByJobPostingAsync(int jobPostingId)
@@ -150,35 +166,40 @@ namespace ATS.API.Services
                 })
                 .ToListAsync();
         }
-    
-        public async Task <ApplicantDto> CreateApplicant(CreateApplicantDto createApplicantDto)
+        public async Task <ApplicantInfoDto> CreateApplicant(CreateApplicantDto createApplicantDto)
         {
-            var response = new ApplicantDto();
-                       // Check if applicant exists
-            var applicant = await _context.Applicants
-                .FirstOrDefaultAsync(a => a.Email == createApplicantDto.Email);
+            
+                if(createApplicantDto == null)
+                  throw new ArgumentNullException(nameof(createApplicantDto));
 
-            if (applicant == null)
-            {
-                applicant = new Applicant
+                // Check if applicant exists
+                var applicant = await _context.Applicants
+                   .FirstOrDefaultAsync(a => a.UserId == createApplicantDto.UserId);
+
+                if (applicant == null)
                 {
-                    UserId = createApplicantDto.UserId,
-                    FirstName = createApplicantDto.FirstName,
-                    LastName = createApplicantDto.LastName,
-                    Email = createApplicantDto.Email,
-                    PhoneNumber = createApplicantDto.PhoneNumber,
-                    EducationLevel =createApplicantDto.EducationLevel,
-                    YearsOfExperience = createApplicantDto.YearsOfExperience,
-                    Skills = createApplicantDto.Skills,
-                    ResumeUrl = "No uploads yet",
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "Admin"
-                };
+                    applicant = new Applicant
+                    {
+                        UserId = createApplicantDto.UserId,
+                        FirstName = createApplicantDto.FirstName,
+                        LastName = createApplicantDto.LastName,
+                        Email = createApplicantDto.Email,
+                        PhoneNumber = createApplicantDto.PhoneNumber,
+                        EducationLevel =createApplicantDto.EducationLevel,
+                        YearsOfExperience = createApplicantDto.YearsOfExperience,
+                        Skills = createApplicantDto.Skills,
+                        DateOfBirth = DateTime.SpecifyKind(createApplicantDto.DateofBirth,DateTimeKind.Utc),
+                        ResumeUrl = "No uploads yet",
+                        CreatedAt = DateTime.UtcNow,
+                        CreatedBy = "Admin"
+                    };
 
-                _context.Applicants.Add(applicant);
-                await _context.SaveChangesAsync();
-            }
-            return response;
+                     _context.Applicants.Add(applicant);
+                    await _context.SaveChangesAsync();
+                    return _mapper.Map<ApplicantInfoDto>(applicant);
+                }
+    
+           return _mapper.Map<ApplicantInfoDto>(applicant);
         }
         public async Task<Application> UpdateApplicationStatusAsync(
             int applicationId, 
@@ -211,7 +232,6 @@ namespace ATS.API.Services
 
             return application;
         }
-
         public async Task ImportCandidateAsync(ExternalCandidateDto candidate)
         {
             var existingApplicant = await _context.Applicants
@@ -241,7 +261,6 @@ namespace ATS.API.Services
             
             return result;
         }
-
         public async Task<ApplicantInfoDto> GetApplicantByIdAsync(Guid Id)
         {
             var response = await _context.Applicants.Where(u =>u.UserId == Id).FirstOrDefaultAsync();

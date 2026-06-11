@@ -3,7 +3,6 @@ using ATS.API.Models;
 using ATS.API.Services;
 using ATS.API.DTOs;
 using ATS.API.Interfaces;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ATS.API.Controllers
 {
@@ -132,7 +131,8 @@ namespace ATS.API.Controllers
             //await _mergeClient.CreateApplicationAsync(application);
 
             // Send confirmation email
-            //await _notificationService.SendApplicationConfirmationAsync(application);
+            if(response.Status=="success")
+               await _notificationService.SendApplicationConfirmationAsync((Application)response.Payload);
 
             return response;//CreatedAtAction(nameof(GetApplication), new { id = application.Id }, application);
         }
@@ -198,10 +198,10 @@ namespace ATS.API.Controllers
             ";
             var applicants = new List<ResumeData>
             {
-                new ResumeData {Id = "001",
+                new ResumeData {Id = new Guid(),
                 ApplicantName = "Aggie Gwata", 
                 Text="Software Engineer with 7 years experience. Expert in C#, .NET, Azure, SQL ..."},
-                new ResumeData {Id = "002",
+                new ResumeData {Id = new Guid(),
                 ApplicantName = "Comish Omar", 
                 Text="Full Stack Developer, 3 years experience with JavaScript, React, Node.js..."}
                 
@@ -272,12 +272,12 @@ namespace ATS.API.Controllers
             });
         }
         [HttpPost("CreateApplicant")]
-        public async Task<ActionResult<ApplicantDto>> Create(CreateApplicantDto dto)
+        public async Task<ActionResult<ApplicantInfoDto>> Create(CreateApplicantDto dto)
         {
             if(dto == null) return BadRequest("Null or invald data. Failed to save to database") ;
 
             var result = await _applicantService.CreateApplicant(dto);
-            return CreatedAtAction(nameof(GetJobApplication), new { applicationId= result.Id }, result);
+            return result; //CreatedAtAction(nameof(GetJobApplication), new { applicationId= result.Id }, result);
         }
         [HttpGet("GetApplicantData/{UserId}")]
         public async Task<ActionResult<ApplicantInfoDto>> GetApplicantInfo(Guid UserId)
