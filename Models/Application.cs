@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace ATS.API.Models;
@@ -8,6 +9,7 @@ namespace ATS.API.Models;
         public ApplicationStatus Status { get; set; } = ApplicationStatus.New;
         public bool IsShortlisted { get; set; }
         public int? ShortlistRank { get; set; }
+        [MaxLength(5000)]
         public string CoverLetter { get; set; }
         public DateTime AppliedAt { get; set; }
         public DateTime? StatusUpdatedAt { get; set; }

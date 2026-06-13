@@ -12,14 +12,14 @@ public class JobPosting: BaseEntity
         public int CompanyId { get; set; }
         
         [Required]
-        [MaxLength(1000)]
+        [MaxLength(1800)]
         public string Description { get; set; }
         
         [Required]
         [MaxLength(100)]
         public string Department { get; set; }
         
-        [MaxLength(100)]
+        [MaxLength(200)]
         public string Location { get; set; }
         
         [Required]

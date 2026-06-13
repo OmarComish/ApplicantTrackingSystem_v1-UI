@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ATS.API.Data.Migrations
 {
     [DbContext(typeof(AtsDbContext))]
-    [Migration("20260603095215_AdjustedJobPostingModelFieldColumnSize")]
-    partial class AdjustedJobPostingModelFieldColumnSize
+    [Migration("20260611134807_UpdatedApplicantIdDataTypeToGuid")]
+    partial class UpdatedApplicantIdDataTypeToGuid
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -450,8 +450,8 @@ namespace ATS.API.Data.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<bool>("Featured")
                         .HasColumnType("boolean");
@@ -463,13 +463,13 @@ namespace ATS.API.Data.Migrations
 
                     b.Property<string>("Requirements")
                         .IsRequired()
-                        .HasMaxLength(1500)
-                        .HasColumnType("character varying(1500)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Responsibilities")
                         .IsRequired()
-                        .HasMaxLength(1500)
-                        .HasColumnType("character varying(1500)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<decimal?>("SalaryMax")
                         .HasColumnType("numeric");

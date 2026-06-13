@@ -5,21 +5,11 @@
 namespace ATS.API.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AdjustedJobPostingModelFieldColumnSize : Migration
+    public partial class ScaledUpColumnSizesApplicationsTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Responsibilities",
-                table: "JobPostings",
-                type: "character varying(1500)",
-                maxLength: 1500,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(500)",
-                oldMaxLength: 500);
-
             migrationBuilder.AlterColumn<string>(
                 name: "Requirements",
                 table: "JobPostings",
@@ -31,30 +21,19 @@ namespace ATS.API.Data.Migrations
                 oldMaxLength: 500);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Description",
-                table: "JobPostings",
-                type: "character varying(1000)",
-                maxLength: 1000,
+                name: "CoverLetter",
+                table: "Applications",
+                type: "character varying(2000)",
+                maxLength: 2000,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "character varying(500)",
-                oldMaxLength: 500);
+                oldType: "text");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "Responsibilities",
-                table: "JobPostings",
-                type: "character varying(500)",
-                maxLength: 500,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(1500)",
-                oldMaxLength: 1500);
-
-            migrationBuilder.AlterColumn<string>(
                 name: "Requirements",
                 table: "JobPostings",
                 type: "character varying(500)",
@@ -65,14 +44,13 @@ namespace ATS.API.Data.Migrations
                 oldMaxLength: 1500);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Description",
-                table: "JobPostings",
-                type: "character varying(500)",
-                maxLength: 500,
+                name: "CoverLetter",
+                table: "Applications",
+                type: "text",
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "character varying(1000)",
-                oldMaxLength: 1000);
+                oldType: "character varying(2000)",
+                oldMaxLength: 2000);
         }
     }
 }

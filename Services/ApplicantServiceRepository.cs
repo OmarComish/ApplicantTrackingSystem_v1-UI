@@ -15,10 +15,12 @@ namespace ATS.API.Services
     {
          private readonly AtsDbContext _context;
          private readonly IMapper _mapper;
-        public ApplicantServiceRepository(AtsDbContext context, IMapper mapper)
+         private readonly INotificationService _notificationService;
+        public ApplicantServiceRepository(AtsDbContext context, IMapper mapper, INotificationService notificationservice)
         {
             _context = context;
             _mapper = mapper;
+            _notificationService = notificationservice;
         }
         public async Task<ResponseDto> CreateApplicationAsync(CreateApplicationDto1 dto)
         {
@@ -48,52 +50,34 @@ namespace ATS.API.Services
 
             response.Status ="success"; 
             response.Message = "Job application submitted successfully";
-            //response.Payload = await GetApplicationByIdAsync(application.Id);
+            
+            await _notificationService.SendApplicationConfirmationAsync(application);
 
             return  response; //await GetApplicationByIdAsync(application.Id);
         }
-        private async Task<Application> GetApplicationByIdAsync(int id)
+        public async Task<Application> GetApplicationByIdAsync(int id)
         {
             return await _context.Applications
                 .Include(a => a.Applicant)
                 .Include(a => a.JobPosting)
                 .Include(a => a.StatusHistory)
                 .FirstOrDefaultAsync(a => a.Id == id);
+            
         }
-        public async Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int userId)
+        public async Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int applicantId)
         {
             
-                var query = from application in _context.Applications
-                          join applicant in _context.Applicants 
-                          on application.ApplicantId equals applicant.UserId
-                          where applicant.UserId == userId
-                            select new ApplicationResponseDto
-                            {
-                                Id = application.Id,
-                                Status = application.Status.ToString(),
-                                JobTitle = application.JobPosting.Title,
-                                Location = application.JobPosting.Location,
-                                AppliedDate = application.AppliedAt,
-                                Company = application.JobPosting.Company.Name
-                            };
-
-                           return await query.ToListAsync();
-
-                /*return await _context.Applications
-                .Join(_context.Applicants,
-                       application =>application.ApplicantId,
-                       applicant =>applicant.UserId,
-                       (application, applicant)=>new {application, applicant})
-                    .Where(joined => joined.applicant.UserId == userId)
-                    .Select(joined => new ApplicationResponseDto
+                return await _context.Applications
+                    .Where(a => a.ApplicantId == applicantId)
+                    .Select(a => new ApplicationResponseDto
                     {
-                        Id = joined.application.Id,
-                        Status = joined.application.Status.ToString(),
-                        JobTitle = joined.application.JobPosting.Title,
-                        Location = joined.application.JobPosting.Location,
-                        AppliedDate = joined.application.AppliedAt,
-                        Company = joined.application.JobPosting.Company.Name // Navigate through JobPosting to Company
-                    }).ToListAsync();*/
+                        Id = a.Id,
+                        Status = a.Status.ToString(),
+                        JobTitle = a.JobPosting.Title,
+                        Location = a.JobPosting.Location,
+                        AppliedDate = a.AppliedAt,
+                        Company = a.JobPosting.Company.Name // Navigate through JobPosting to Company
+                    }).ToListAsync();
         }
         public async Task<IEnumerable<ApplicantDto>> GetApplicantsListingsAsync()
         {
@@ -111,12 +95,12 @@ namespace ATS.API.Services
                     Experience = a.Applicant.YearsOfExperience,
                     Status = a.Status.ToString(),
                     Score = (decimal)_context.ApplicantScores
-                     .Where( s =>s.ApplicantId == a.ApplicantId)
+                     .Where( s =>s.ApplicantId == a.ApplicantId.ToString())
                      .OrderByDescending(s =>s.CreatedAt)
                      .Select(s =>s.Score)
                      .FirstOrDefault(),
                      Reasoning = _context.ApplicantScores
-                        .Where(s =>s.ApplicantId == a.ApplicantId)
+                        .Where(s =>s.ApplicantId == a.ApplicantId.ToString())
                         .OrderByDescending(s =>s.CreatedAt)
                         .Select(s =>s.Reasoning)
                         .FirstOrDefault()
@@ -166,7 +150,7 @@ namespace ATS.API.Services
                 })
                 .ToListAsync();
         }
-        public async Task <ApplicantInfoDto> CreateApplicant(CreateApplicantDto createApplicantDto)
+        public async Task<ApplicantInfoDto> CreateApplicant(CreateApplicantDto createApplicantDto)
         {
             
                 if(createApplicantDto == null)

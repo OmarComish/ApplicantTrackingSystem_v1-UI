@@ -17,6 +17,7 @@ namespace ATS.API.DTOs
         public int Experience { get; set; }
         public string Status {get; set;}
         public string Reasoning {get; set;}
+        public string Email {get;set;}
     }
     public class CreateApplicantDto 
     {
@@ -59,7 +60,8 @@ namespace ATS.API.DTOs
     {
         public Guid Id {get; set;}
         public int JobPostingId {get; set;}
-        [MaxLength(800)]
+        [Required]
+        [MaxLength(5000)]
         public string CoverLetter {get; set;}
     }
 

@@ -15,10 +15,11 @@ namespace ATS.API.Interfaces
         Task<IEnumerable<ApplicationDetailsDto>> FilterByEducationAsync(int jobPostingId, EducationLevel educationLevel);
         Task<Application> UpdateApplicationStatusAsync(int applicationId, ApplicationStatus status, int userId, string comments);
         Task ImportCandidateAsync(ExternalCandidateDto candidate);
-        Task <ApplicantDto> CreateApplicant(CreateApplicantDto createApplicantDto);
+        Task<ApplicantInfoDto> CreateApplicant(CreateApplicantDto createApplicantDto);
         Task<IEnumerable<ApplicantDto>> GetAllAsync();
-        Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(Guid id);
+        Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int id);
         Task<IEnumerable<ApplicantDto>> GetApplicantsListingsAsync();
         Task<ApplicantInfoDto> GetApplicantByIdAsync(Guid Id);
+        Task<Application> GetApplicationByIdAsync(int id);
     }
 }

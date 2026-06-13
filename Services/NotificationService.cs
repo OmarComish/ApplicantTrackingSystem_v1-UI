@@ -37,6 +37,8 @@ namespace ATS.API.Services
         {
             try
             {
+                Console.WriteLine("====================sending notification initiated...");
+                Console.WriteLine($"Receiver:{application.Applicant.FirstName}...");
                 var applicant = await _context.Applicants.FindAsync(application.ApplicantId);
                 var jobPosting = await _context.JobPostings.FindAsync(application.JobPostingId);
 
@@ -64,6 +66,8 @@ namespace ATS.API.Services
 
                 await SendEmailAsync(applicant.Email, subject, body);
                 _logger.LogInformation("Sent confirmation email to {Email}", applicant.Email);
+                Console.WriteLine("====================sending notification completed...");
+                Console.WriteLine($"Sent confirmation email to applicant");
             }
             catch (Exception ex)
             {

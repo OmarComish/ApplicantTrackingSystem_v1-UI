@@ -131,28 +131,27 @@ namespace ATS.API.Controllers
             //await _mergeClient.CreateApplicationAsync(application);
 
             // Send confirmation email
-            if(response.Status=="success")
-               await _notificationService.SendApplicationConfirmationAsync((Application)response.Payload);
+            //if(response.Status=="success")
+               //await _notificationService.SendApplicationConfirmationAsync((Application)response.Payload);
 
             return response;//CreatedAtAction(nameof(GetApplication), new { id = application.Id }, application);
         }
         
-       
-        /*[HttpGet("/jobs/{Id}")]
-        public async Task<ActionResult<ApplicationResponseDto>> GetApplication(Guid Id)
+
+        [HttpGet("{applicationId}")]
+        public async Task<ActionResult<ApplicationResponseDto>> GetApplication(int applicationId)
         {
-            
-            var applications = await _applicantService.GetJobApplicationByIdAsync(Id);
+            //var application = await _applicantService.GetApplicationByIdAsync(applicationId);
+            var applications = await _applicantService.GetJobApplicationByIdAsync(applicationId);
             
             if (applications == null)
-                return NotFound($"Applicant with ID {Id} not found.");
+                return NotFound($"Application with ID {applicationId} not found.");
 
             return Ok(applications);
-        }*/
+        }
 
-         //US Get all jobs applicant applicant for
         [HttpGet("jobsapplied/{Id}")]
-        public async Task<ActionResult<IEnumerable<ApplicationResponseDto>>> GetJobApplication(Guid Id)
+        public async Task<ActionResult<IEnumerable<ApplicationResponseDto>>> GetJobApplication(int Id)
         {
             var applications = await _applicantService.GetJobApplicationByIdAsync(Id);
              
@@ -196,16 +195,16 @@ namespace ATS.API.Controllers
                 - Bachelor's degree in Computer Science
                 - Strong SQL and REST API skills
             ";
-            var applicants = new List<ResumeData>
-            {
-                new ResumeData {Id = new Guid(),
+            var applicants = new List<ResumeData>();
+            /*{
+                new ResumeData {Id = ,
                 ApplicantName = "Aggie Gwata", 
                 Text="Software Engineer with 7 years experience. Expert in C#, .NET, Azure, SQL ..."},
-                new ResumeData {Id = new Guid(),
+                new ResumeData {Id = 2,
                 ApplicantName = "Comish Omar", 
                 Text="Full Stack Developer, 3 years experience with JavaScript, React, Node.js..."}
                 
-            };
+            };*/
             var rankedApplicants =await _rankingservice.RankApplicants(jobdescription, applicants);
             foreach(var applicant in rankedApplicants)
             {
@@ -277,7 +276,7 @@ namespace ATS.API.Controllers
             if(dto == null) return BadRequest("Null or invald data. Failed to save to database") ;
 
             var result = await _applicantService.CreateApplicant(dto);
-            return result; //CreatedAtAction(nameof(GetJobApplication), new { applicationId= result.Id }, result);
+            return result; //CreatedAtAction(nameof(GetApplication), new { applicationId= result.Id }, result);
         }
         [HttpGet("GetApplicantData/{UserId}")]
         public async Task<ActionResult<ApplicantInfoDto>> GetApplicantInfo(Guid UserId)
@@ -285,7 +284,5 @@ namespace ATS.API.Controllers
             var response = await _applicantService.GetApplicantByIdAsync(UserId);
             return response;
         }
-
-
     }
 }

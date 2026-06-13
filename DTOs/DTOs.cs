@@ -13,7 +13,7 @@ namespace ATS.API.DTOs
         public string Title { get; set; }
         
         [Required]
-        [MaxLength(1000)]
+        [MaxLength(1800)]
         public string Description { get; set; }
         
         [Required]
@@ -93,7 +93,7 @@ namespace ATS.API.DTOs
         public int YearsOfExperience { get; set; }
         
         public string Skills { get; set; }
-        
+        [MaxLength(2000)]
         public string CoverLetter { get; set; }
         public string Notes {get; set;}
     }
