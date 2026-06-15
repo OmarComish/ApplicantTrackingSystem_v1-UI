@@ -50,7 +50,8 @@ namespace ATS.API.Services
 
             response.Status ="success"; 
             response.Message = "Job application submitted successfully";
-            
+
+            // Send confirmation email
             await _notificationService.SendApplicationConfirmationAsync(application);
 
             return  response; //await GetApplicationByIdAsync(application.Id);
@@ -212,6 +213,11 @@ namespace ATS.API.Services
             };
 
             _context.ApplicationStatusHistories.Add(history);
+
+
+            //Update the application here....
+            //after successful update, send the Status update email ....
+
             await _context.SaveChangesAsync();
 
             return application;

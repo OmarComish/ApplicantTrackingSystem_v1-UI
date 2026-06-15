@@ -127,6 +127,8 @@ namespace ATS.API.Services
             await _context.ApplicantScores.AddRangeAsync(currentapplicantlist);
             await _context.SaveChangesAsync();
 
+            //Update the status for each application 
+
         }
         private List<ApplicantScore> ScoreWithRules(List<ApplicantFeatures> features)
         {
