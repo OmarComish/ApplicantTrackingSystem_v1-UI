@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,13 +57,22 @@ namespace ATS.API.Services
 
             return  response; //await GetApplicationByIdAsync(application.Id);
         }
-        public async Task<Application> GetApplicationByIdAsync(int id)
+        public async Task<IEnumerable<ApplicationResponseDto>> GetApplicationByUserIdAsync(Guid id)
         {
             return await _context.Applications
                 .Include(a => a.Applicant)
                 .Include(a => a.JobPosting)
                 .Include(a => a.StatusHistory)
-                .FirstOrDefaultAsync(a => a.Id == id);
+                .Where(a => a.Applicant.UserId == id)
+                .Select(a => new ApplicationResponseDto
+                {
+                    Id = a.Id,
+                        Status = a.Status.ToString(),
+                        JobTitle = a.JobPosting.Title,
+                        Location = a.JobPosting.Location,
+                        AppliedDate = a.AppliedAt,
+                        Company = a.JobPosting.Company.Name 
+                }).ToListAsync();
             
         }
         public async Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int applicantId)
@@ -96,12 +106,12 @@ namespace ATS.API.Services
                     Experience = a.Applicant.YearsOfExperience,
                     Status = a.Status.ToString(),
                     Score = (decimal)_context.ApplicantScores
-                     .Where( s =>s.ApplicantId == a.ApplicantId.ToString())
+                     .Where( s =>s.ApplicantId == a.ApplicantId)
                      .OrderByDescending(s =>s.CreatedAt)
                      .Select(s =>s.Score)
                      .FirstOrDefault(),
                      Reasoning = _context.ApplicantScores
-                        .Where(s =>s.ApplicantId == a.ApplicantId.ToString())
+                        .Where(s =>s.ApplicantId == a.ApplicantId)
                         .OrderByDescending(s =>s.CreatedAt)
                         .Select(s =>s.Reasoning)
                         .FirstOrDefault()
@@ -212,13 +222,11 @@ namespace ATS.API.Services
                 ChangedAt = DateTime.UtcNow
             };
 
-            _context.ApplicationStatusHistories.Add(history);
-
+             _context.ApplicationStatusHistories.Add(history);
+             await _context.SaveChangesAsync();
 
             //Update the application here....
-            //after successful update, send the Status update email ....
-
-            await _context.SaveChangesAsync();
+             await UpdateApplicationStatus(application);
 
             return application;
         }
@@ -259,6 +267,30 @@ namespace ATS.API.Services
               return null;
 
             return _mapper.Map<ApplicantInfoDto>(response);
+        }
+        private async Task<Application> GetApplicationByIdAsync(int id)
+        {
+            return await _context.Applications
+                .Include(a => a.Applicant)
+                .Include(a => a.JobPosting)
+                .Include(a => a.StatusHistory)
+                .Where(a => a.Id == id).FirstOrDefaultAsync();
+            
+        }
+        private async Task UpdateApplicationStatus(Application application)
+        {
+            if(application != null)
+            {
+                 Console.WriteLine($"Attempting to update status for applicant {application.ApplicantId}");
+                 Console.WriteLine("=============....===============");
+                _context.Applications.Entry(application).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                Console.WriteLine($"Status update successful!");
+                //after successful update, send the Status update email ....
+                Console.WriteLine($"Attempting to send status update to applicant {application.ApplicantId}");
+                await _notificationService.SendStatusUpdateEmailAsync(application);   
+            }
         }
     }
 }

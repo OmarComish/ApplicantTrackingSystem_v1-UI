@@ -8,7 +8,7 @@ namespace ATS.API.Models
 {
     public class ApplicantFeatures :BaseEntity
     {
-        public string ApplicantId {get; set;}
+        public int ApplicantId {get; set;}
         [LoadColumn(0)]
         public float SkillMatchRatio {get; set;}
         [LoadColumn(1)]

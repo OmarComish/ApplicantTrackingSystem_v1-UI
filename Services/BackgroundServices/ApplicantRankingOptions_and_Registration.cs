@@ -13,13 +13,13 @@ namespace ATS.API.Services.BackgroundServices
         /// <summary>
         /// How often (in minutes) the background job runs. Default: 60.
         /// </summary>
-        public double IntervalMinutes { get; set; } = 60;
+        public double IntervalMinutes { get; set; } =5;
 
         /// <summary>
         /// Seconds to wait after app startup before the first run. Default: 30.
         /// Useful to let migrations / warm-up finish before the first ranking pass.
         /// </summary>
-        public int InitialDelaySeconds { get; set; } = 30;
+        public int InitialDelaySeconds { get; set; } = 15;
     }
 }
 

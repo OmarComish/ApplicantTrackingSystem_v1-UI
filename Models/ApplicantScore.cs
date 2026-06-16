@@ -7,7 +7,7 @@ namespace ATS.API.Models
 {
     public class ApplicantScore :BaseEntity
     {
-        public string  ApplicantId { get; set; }
+        public int  ApplicantId { get; set; }
         public double Score { get; set; }
         public List<string> MatchedSkills { get; set; }
         public List<string> MissingSkills { get; set; }

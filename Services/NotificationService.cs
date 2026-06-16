@@ -139,6 +139,7 @@ namespace ATS.API.Services
 
                 await SendEmailAsync(applicant.Email, applicantSubject, applicantBody);
                 _logger.LogInformation("Sent status update email to {Email}", applicant.Email);
+                Console.WriteLine("Status update successfully sent");
             }
             catch (Exception ex)
             {

@@ -3,6 +3,7 @@ public enum ApplicationStatus
 {
     New,
     Reviewing,
+    Screening,
     Shortlisted,
     Interviewing,
     Offered,

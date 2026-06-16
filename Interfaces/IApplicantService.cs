@@ -20,6 +20,6 @@ namespace ATS.API.Interfaces
         Task<IEnumerable<ApplicationResponseDto>> GetJobApplicationByIdAsync(int id);
         Task<IEnumerable<ApplicantDto>> GetApplicantsListingsAsync();
         Task<ApplicantInfoDto> GetApplicantByIdAsync(Guid Id);
-        Task<Application> GetApplicationByIdAsync(int id);
+        Task<IEnumerable<ApplicationResponseDto>> GetApplicationByUserIdAsync(Guid id);
     }
 }

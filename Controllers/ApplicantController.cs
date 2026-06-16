@@ -150,13 +150,13 @@ namespace ATS.API.Controllers
             return Ok(applications);
         }
 
-        [HttpGet("jobsapplied/{Id}")]
-        public async Task<ActionResult<IEnumerable<ApplicationResponseDto>>> GetJobApplication(int Id)
+        [HttpGet("jobsapplied/{UserId}")]
+        public async Task<ActionResult<IEnumerable<ApplicationResponseDto>>> GetJobApplication(Guid UserId)
         {
-            var applications = await _applicantService.GetJobApplicationByIdAsync(Id);
+            var applications = await _applicantService.GetApplicationByUserIdAsync(UserId);
              
              if (applications == null)
-                return NotFound($"Application with ID {Id} not found.");
+                return NotFound($"Application with ID {UserId} not found.");
 
             return Ok(applications);
         }

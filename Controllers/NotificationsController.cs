@@ -19,11 +19,12 @@ public class NotificationsController: ControllerBase
     public async Task<ActionResult<Application>> SendNotification(int applicationId)
     {
     
-           var application = await _applicantService.GetApplicationByIdAsync(applicationId);
+           var application = await _applicantService.GetJobApplicationByIdAsync(applicationId);
            if(application == null)
              return NotFound($"Application with ID {applicationId} not found.");
            
-           await _notificationService.SendApplicationConfirmationAsync(application);
+           //await _notificationService.SendApplicationConfirmationAsync();
+           //commented out. We created it for testing the notifications service
 
            return Ok(application);
         

@@ -19,10 +19,12 @@ namespace ATS.API.Services
         private ITransformer _model;
         private readonly string _modelPath;
         private readonly AtsDbContext _context;
-        public ApplicantRankingService(AtsDbContext context,string modelDirectory=null)
+        private readonly IApplicantService _applicantService;
+        public ApplicantRankingService(AtsDbContext context,IApplicantService applicantService,string modelDirectory=null)
         {
             _context = context;
             _mlContext = new MLContext(seed: 0);
+            _applicantService = applicantService;
 
             //directory for local data storage
             if(string.IsNullOrEmpty(modelDirectory))
@@ -128,6 +130,12 @@ namespace ATS.API.Services
             await _context.SaveChangesAsync();
 
             //Update the status for each application 
+            foreach(var currentapplicant in currentapplicantlist)
+            {
+                await _applicantService.UpdateApplicationStatusAsync(currentapplicant.ApplicantId,
+                    ApplicationStatus.Reviewing,1,"Screening in progress");
+                
+            }
 
         }
         private List<ApplicantScore> ScoreWithRules(List<ApplicantFeatures> features)
@@ -237,7 +245,9 @@ namespace ATS.API.Services
 
             return new ApplicantFeatures
             {
-                ApplicantId = resume.Id,
+                //Transitional change applied on 'resume.Id'. Consider changing the underlying properties in the entity
+                //This could be a potential source of bugs later.
+                ApplicantId = Convert.ToInt32(resume.Id), 
                 SkillMatchRatio = jobSkills.Count > 0 ? (float)commonSkills.Count /jobSkills.Count: 0f,
                 MatchedSkills = commonSkills,
                 MissingSkills = jobSkills.Except(resumeSkills,StringComparer.OrdinalIgnoreCase).ToList(),
