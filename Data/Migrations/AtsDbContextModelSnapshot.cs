@@ -99,9 +99,8 @@ namespace ATS.API.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ApplicantId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ApplicantId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -186,9 +185,8 @@ namespace ATS.API.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ApplicantId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ApplicantId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");

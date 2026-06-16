@@ -19,7 +19,7 @@ namespace ATS.API.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ApplicantId = table.Column<string>(type: "text", nullable: false),
+                    ApplicantId = table.Column<int>(type: "integer", nullable: false),
                     SkillMatchRatio = table.Column<float>(type: "real", nullable: false),
                     ExperienceYears = table.Column<float>(type: "real", nullable: false),
                     EducationLevel = table.Column<float>(type: "real", nullable: false),
@@ -61,12 +61,14 @@ namespace ATS.API.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     PhoneNumber = table.Column<string>(type: "text", nullable: false),
                     ResumeUrl = table.Column<string>(type: "text", nullable: true),
                     EducationLevel = table.Column<string>(type: "text", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     YearsOfExperience = table.Column<int>(type: "integer", nullable: false),
                     Skills = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -85,7 +87,7 @@ namespace ATS.API.Data.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ApplicantId = table.Column<string>(type: "text", nullable: false),
+                    ApplicantId = table.Column<int>(type: "integer", nullable: false),
                     Score = table.Column<double>(type: "double precision", nullable: false),
                     MatchedSkills = table.Column<List<string>>(type: "text[]", nullable: false),
                     MissingSkills = table.Column<List<string>>(type: "text[]", nullable: false),
@@ -200,11 +202,11 @@ namespace ATS.API.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     CompanyId = table.Column<int>(type: "integer", nullable: false),
-                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1800)", maxLength: 1800, nullable: false),
                     Department = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Location = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Requirements = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    Responsibilities = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Location = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Requirements = table.Column<string>(type: "character varying(1500)", maxLength: 1500, nullable: false),
+                    Responsibilities = table.Column<string>(type: "character varying(1500)", maxLength: 1500, nullable: false),
                     SalaryMin = table.Column<decimal>(type: "numeric", nullable: true),
                     SalaryMax = table.Column<decimal>(type: "numeric", nullable: true),
                     ClosedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -238,7 +240,7 @@ namespace ATS.API.Data.Migrations
                     Status = table.Column<string>(type: "text", nullable: false),
                     IsShortlisted = table.Column<bool>(type: "boolean", nullable: false),
                     ShortlistRank = table.Column<int>(type: "integer", nullable: true),
-                    CoverLetter = table.Column<string>(type: "text", nullable: false),
+                    CoverLetter = table.Column<string>(type: "character varying(5000)", maxLength: 5000, nullable: false),
                     AppliedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     StatusUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Notes = table.Column<string>(type: "text", nullable: true),
