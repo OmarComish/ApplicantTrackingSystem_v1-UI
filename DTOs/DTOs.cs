@@ -116,11 +116,10 @@ namespace ATS.API.DTOs
     public class UpdateStatusDto
     {
         [Required]
-        public ApplicationStatus Status { get; set; }
-        
+        public int ApplicationId {get; set;}
         [Required]
+        public ApplicationStatus Status { get; set; }
         public int UserId { get; set; }
-        
         public string Comments { get; set; }
     }
 

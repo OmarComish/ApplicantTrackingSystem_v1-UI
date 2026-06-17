@@ -86,6 +86,9 @@ namespace ATS.API.Controllers
             int applicationId,
             [FromBody] UpdateStatusDto dto)
         {
+            dto.UserId = 1;
+            dto.Comments = $"Status changed to {dto.Status}";
+
             var application = await _applicantService.UpdateApplicationStatusAsync(
                 applicationId, 
                 dto.Status, 
@@ -96,10 +99,10 @@ namespace ATS.API.Controllers
                 return NotFound($"Application with ID {applicationId} not found.");
 
             // US-4.2: Send email notification to applicant
-            await _notificationService.SendStatusUpdateEmailAsync(application);
+            //await _notificationService.SendStatusUpdateEmailAsync(application);
 
             // Sync with Merge.dev for ATS integration
-            await _mergeClient.UpdateApplicationStatusAsync(application);
+            //await _mergeClient.UpdateApplicationStatusAsync(application);
 
             return Ok(application);
         }

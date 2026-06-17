@@ -40,7 +40,7 @@ namespace ATS.API.Services
                 JobPostingId = dto.JobPostingId,
                 ApplicantId = applicant.Id,
                 CoverLetter = dto.CoverLetter,
-                Status = ApplicationStatus.New,
+                Status = ApplicationStatus.Pending,
                 AppliedAt = DateTime.UtcNow,
                 //Notes = dto.Notes,
                 CreatedAt = DateTime.UtcNow
